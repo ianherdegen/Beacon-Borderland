@@ -1226,41 +1226,42 @@ export function BeaconsPage() {
               <p className="text-gray-400 text-sm">Add participants to select game outcome</p>
             </div>
           ) : (
-            {isAuthenticated ? (
-            <div className="space-y-2 mb-4">
-              <div 
-                className={`p-3 rounded-lg border-2 transition-all cursor-pointer ${
-                  currentOutcome === 'win'
-                    ? 'bg-green-500/20 border-green-500 shadow-[0_0_15px_rgba(74,222,128,0.3)]' 
-                    : 'border-gray-800 hover:border-gray-700'
-                }`}
-                onClick={() => setGameOutcomes(prev => ({ ...prev, [game.id]: 'win' }))}
-              >
-                <span className={currentOutcome === 'win' ? 'text-green-400' : 'text-gray-300'}>
-                  Player Won
-                </span>
+            isAuthenticated ? (
+              <div className="space-y-2 mb-4">
+                <div 
+                  className={`p-3 rounded-lg border-2 transition-all cursor-pointer ${
+                    currentOutcome === 'win'
+                      ? 'bg-green-500/20 border-green-500 shadow-[0_0_15px_rgba(74,222,128,0.3)]' 
+                      : 'border-gray-800 hover:border-gray-700'
+                  }`}
+                  onClick={() => setGameOutcomes(prev => ({ ...prev, [game.id]: 'win' }))}
+                >
+                  <span className={currentOutcome === 'win' ? 'text-green-400' : 'text-gray-300'}>
+                    Player Won
+                  </span>
+                </div>
+                <div 
+                  className={`p-3 rounded-lg border-2 transition-all cursor-pointer ${
+                    currentOutcome === 'eliminated'
+                      ? 'bg-red-500/20 border-red-500 shadow-[0_0_15px_rgba(239,68,68,0.3)]' 
+                      : 'border-gray-800 hover:border-gray-700'
+                  }`}
+                  onClick={() => setGameOutcomes(prev => ({ ...prev, [game.id]: 'eliminated' }))}
+                >
+                  <span className={currentOutcome === 'eliminated' ? 'text-red-400' : 'text-gray-300'}>
+                    Player Eliminated
+                  </span>
+                </div>
               </div>
-              <div 
-                className={`p-3 rounded-lg border-2 transition-all cursor-pointer ${
-                  currentOutcome === 'eliminated'
-                    ? 'bg-red-500/20 border-red-500 shadow-[0_0_15px_rgba(239,68,68,0.3)]' 
-                    : 'border-gray-800 hover:border-gray-700'
-                }`}
-                onClick={() => setGameOutcomes(prev => ({ ...prev, [game.id]: 'eliminated' }))}
-              >
-                <span className={currentOutcome === 'eliminated' ? 'text-red-400' : 'text-gray-300'}>
-                  Player Eliminated
-                </span>
+            ) : (
+              <div className="space-y-2 mb-4">
+                <div className="p-3 rounded-lg border-2 border-gray-800">
+                  <span className="text-gray-500">
+                    {currentOutcome === 'win' ? 'Player Won' : currentOutcome === 'eliminated' ? 'Player Eliminated' : 'No outcome selected'}
+                  </span>
+                </div>
               </div>
-            </div>
-          ) : (
-            <div className="space-y-2 mb-4">
-              <div className="p-3 rounded-lg border-2 border-gray-800">
-                <span className="text-gray-500">
-                  {currentOutcome === 'win' ? 'Player Won' : currentOutcome === 'eliminated' ? 'Player Eliminated' : 'No outcome selected'}
-                </span>
-              </div>
-            </div>
+            )
           )}
           )}
           <Tooltip>
@@ -1316,41 +1317,42 @@ export function BeaconsPage() {
               <p className="text-gray-400 text-sm">Add participants to select team outcome</p>
             </div>
           ) : (
-            {isAuthenticated ? (
-            <div className="space-y-2 mb-4">
-              <div 
-                className={`p-3 rounded-lg border-2 transition-all cursor-pointer ${
-                  currentOutcome === 'win'
-                    ? 'bg-green-500/20 border-green-500 shadow-[0_0_15px_rgba(74,222,128,0.3)]' 
-                    : 'border-gray-800 hover:border-gray-700'
-                }`}
-                onClick={() => setGameOutcomes(prev => ({ ...prev, [game.id]: 'win' }))}
-              >
-                <span className={currentOutcome === 'win' ? 'text-green-400' : 'text-gray-300'}>
-                  ALL Players Won
-                </span>
+            isAuthenticated ? (
+              <div className="space-y-2 mb-4">
+                <div 
+                  className={`p-3 rounded-lg border-2 transition-all cursor-pointer ${
+                    currentOutcome === 'win'
+                      ? 'bg-green-500/20 border-green-500 shadow-[0_0_15px_rgba(74,222,128,0.3)]' 
+                      : 'border-gray-800 hover:border-gray-700'
+                  }`}
+                  onClick={() => setGameOutcomes(prev => ({ ...prev, [game.id]: 'win' }))}
+                >
+                  <span className={currentOutcome === 'win' ? 'text-green-400' : 'text-gray-300'}>
+                    ALL Players Won
+                  </span>
+                </div>
+                <div 
+                  className={`p-3 rounded-lg border-2 transition-all cursor-pointer ${
+                    currentOutcome === 'eliminated'
+                      ? 'bg-red-500/20 border-red-500 shadow-[0_0_15px_rgba(239,68,68,0.3)]' 
+                      : 'border-gray-800 hover:border-gray-700'
+                  }`}
+                  onClick={() => setGameOutcomes(prev => ({ ...prev, [game.id]: 'eliminated' }))}
+                >
+                  <span className={currentOutcome === 'eliminated' ? 'text-red-400' : 'text-gray-300'}>
+                    ALL Players Eliminated
+                  </span>
+                </div>
               </div>
-              <div 
-                className={`p-3 rounded-lg border-2 transition-all cursor-pointer ${
-                  currentOutcome === 'eliminated'
-                    ? 'bg-red-500/20 border-red-500 shadow-[0_0_15px_rgba(239,68,68,0.3)]' 
-                    : 'border-gray-800 hover:border-gray-700'
-                }`}
-                onClick={() => setGameOutcomes(prev => ({ ...prev, [game.id]: 'eliminated' }))}
-              >
-                <span className={currentOutcome === 'eliminated' ? 'text-red-400' : 'text-gray-300'}>
-                  ALL Players Eliminated
-                </span>
+            ) : (
+              <div className="space-y-2 mb-4">
+                <div className="p-3 rounded-lg border-2 border-gray-800">
+                  <span className="text-gray-500">
+                    {currentOutcome === 'win' ? 'ALL Players Won' : currentOutcome === 'eliminated' ? 'ALL Players Eliminated' : 'No outcome selected'}
+                  </span>
+                </div>
               </div>
-            </div>
-          ) : (
-            <div className="space-y-2 mb-4">
-              <div className="p-3 rounded-lg border-2 border-gray-800">
-                <span className="text-gray-500">
-                  {currentOutcome === 'win' ? 'ALL Players Won' : currentOutcome === 'eliminated' ? 'ALL Players Eliminated' : 'No outcome selected'}
-                </span>
-              </div>
-            </div>
+            )
           )}
           )}
           <Tooltip>
@@ -1405,57 +1407,58 @@ export function BeaconsPage() {
               <p className="text-gray-400 text-sm">Add participants to select player outcomes</p>
             </div>
           ) : (
-            {isAuthenticated ? (
-            <div className="space-y-2 mb-4">
-              <p className="text-gray-400 text-sm">Mark players as winners or eliminated:</p>
+            isAuthenticated ? (
+              <div className="space-y-2 mb-4">
+                <p className="text-gray-400 text-sm">Mark players as winners or eliminated:</p>
+                  {game.players.map((player: any, index: number) => {
+                    const playerName = player.player_username || 'Unknown Player';
+                    const outcome = versusPlayerOutcomes[game.id]?.[playerName];
+                  return (
+                    <div key={index} className="flex items-center justify-between p-3 bg-gray-900 rounded-lg border border-gray-800">
+                        <span className="text-white">{playerName}</span>
+                      <div className="flex gap-2">
+                        <Button 
+                          size="sm" 
+                          className={outcome === 'win' 
+                            ? 'bg-green-500 hover:bg-green-600 text-white shadow-[0_0_12px_rgba(74,222,128,0.5)]' 
+                            : 'bg-gray-800 hover:bg-gray-700 text-gray-400 border border-gray-700'
+                          }
+                            onClick={() => handleVersusPlayerOutcome(game.id, playerName, 'win')}
+                        >
+                          Won
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          className={outcome === 'eliminated'
+                            ? 'bg-red-500 hover:bg-red-600 text-white shadow-[0_0_12px_rgba(239,68,68,0.5)]'
+                            : 'bg-gray-800 hover:bg-gray-700 text-gray-400 border border-gray-700'
+                          }
+                            onClick={() => handleVersusPlayerOutcome(game.id, playerName, 'eliminated')}
+                        >
+                          Eliminated
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="space-y-2 mb-4">
+                <p className="text-gray-400 text-sm">Player outcomes:</p>
                 {game.players.map((player: any, index: number) => {
                   const playerName = player.player_username || 'Unknown Player';
                   const outcome = versusPlayerOutcomes[game.id]?.[playerName];
-                return (
-                  <div key={index} className="flex items-center justify-between p-3 bg-gray-900 rounded-lg border border-gray-800">
+                  return (
+                    <div key={index} className="flex items-center justify-between p-3 bg-gray-900 rounded-lg border border-gray-800">
                       <span className="text-white">{playerName}</span>
-                    <div className="flex gap-2">
-                      <Button 
-                        size="sm" 
-                        className={outcome === 'win' 
-                          ? 'bg-green-500 hover:bg-green-600 text-white shadow-[0_0_12px_rgba(74,222,128,0.5)]' 
-                          : 'bg-gray-800 hover:bg-gray-700 text-gray-400 border border-gray-700'
-                        }
-                          onClick={() => handleVersusPlayerOutcome(game.id, playerName, 'win')}
-                      >
-                        Won
-                      </Button>
-                      <Button 
-                        size="sm" 
-                        className={outcome === 'eliminated'
-                          ? 'bg-red-500 hover:bg-red-600 text-white shadow-[0_0_12px_rgba(239,68,68,0.5)]'
-                          : 'bg-gray-800 hover:bg-gray-700 text-gray-400 border border-gray-700'
-                        }
-                          onClick={() => handleVersusPlayerOutcome(game.id, playerName, 'eliminated')}
-                      >
-                        Eliminated
-                      </Button>
+                      <span className="text-gray-500">
+                        {outcome === 'win' ? 'Won' : outcome === 'eliminated' ? 'Eliminated' : 'No outcome'}
+                      </span>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="space-y-2 mb-4">
-              <p className="text-gray-400 text-sm">Player outcomes:</p>
-              {game.players.map((player: any, index: number) => {
-                const playerName = player.player_username || 'Unknown Player';
-                const outcome = versusPlayerOutcomes[game.id]?.[playerName];
-                return (
-                  <div key={index} className="flex items-center justify-between p-3 bg-gray-900 rounded-lg border border-gray-800">
-                    <span className="text-white">{playerName}</span>
-                    <span className="text-gray-500">
-                      {outcome === 'win' ? 'Won' : outcome === 'eliminated' ? 'Eliminated' : 'No outcome'}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+            )
           )}
           )}
           <Tooltip>
