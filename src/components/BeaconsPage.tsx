@@ -1226,7 +1226,7 @@ export function BeaconsPage() {
               <p className="text-gray-400 text-sm">Add participants to select game outcome</p>
             </div>
           ) : (
-          {isAuthenticated ? (
+            {isAuthenticated ? (
             <div className="space-y-2 mb-4">
               <div 
                 className={`p-3 rounded-lg border-2 transition-all cursor-pointer ${
@@ -1316,7 +1316,7 @@ export function BeaconsPage() {
               <p className="text-gray-400 text-sm">Add participants to select team outcome</p>
             </div>
           ) : (
-          {isAuthenticated ? (
+            {isAuthenticated ? (
             <div className="space-y-2 mb-4">
               <div 
                 className={`p-3 rounded-lg border-2 transition-all cursor-pointer ${
@@ -1405,7 +1405,7 @@ export function BeaconsPage() {
               <p className="text-gray-400 text-sm">Add participants to select player outcomes</p>
             </div>
           ) : (
-          {isAuthenticated ? (
+            {isAuthenticated ? (
             <div className="space-y-2 mb-4">
               <p className="text-gray-400 text-sm">Mark players as winners or eliminated:</p>
                 {game.players.map((player: any, index: number) => {
