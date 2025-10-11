@@ -1878,52 +1878,58 @@ export function BeaconsPage() {
                             </div>
                           </DialogContent>
                         </Dialog>
-                        <Button 
-                          className="w-full bg-[#ff00ff] hover:bg-[#ff00ff]/90 text-white"
-                          onClick={() => setIsStartGameDialogOpen(true)}
-                        >
-                          <Play className="h-4 w-4 mr-2" />
-                          Start New Game
-                        </Button>
+                        {isAuthenticated && (
+                          <Button 
+                            className="w-full bg-[#ff00ff] hover:bg-[#ff00ff]/90 text-white"
+                            onClick={() => setIsStartGameDialogOpen(true)}
+                          >
+                            <Play className="h-4 w-4 mr-2" />
+                            Start New Game
+                          </Button>
+                        )}
                         <p className="text-gray-500 text-xs text-center">
                           Creates a new game session on this beacon
                         </p>
-                              <Button 
-                          className="w-full bg-red-500 hover:bg-red-600 text-white disabled:bg-gray-600 disabled:cursor-not-allowed"
-                          onClick={() => handleDeactivateBeacon(selectedBeacon.id)}
-                          disabled={updatingBeacon === selectedBeacon.id || (selectedBeacon.activeGames && selectedBeacon.activeGames.length > 0)}
-                        >
-                          {updatingBeacon === selectedBeacon.id ? (
-                            <>
-                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                              Deactivating...
-                            </>
-                          ) : selectedBeacon.activeGames && selectedBeacon.activeGames.length > 0 ? (
-                            `Cannot Deactivate (${selectedBeacon.activeGames.length} Active Games)`
-                          ) : (
-                            'Deactivate Beacon'
-                          )}
-                              </Button>
+                              {isAuthenticated && (
+                                <Button 
+                            className="w-full bg-red-500 hover:bg-red-600 text-white disabled:bg-gray-600 disabled:cursor-not-allowed"
+                            onClick={() => handleDeactivateBeacon(selectedBeacon.id)}
+                            disabled={updatingBeacon === selectedBeacon.id || (selectedBeacon.activeGames && selectedBeacon.activeGames.length > 0)}
+                          >
+                            {updatingBeacon === selectedBeacon.id ? (
+                              <>
+                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                Deactivating...
+                              </>
+                            ) : selectedBeacon.activeGames && selectedBeacon.activeGames.length > 0 ? (
+                              `Cannot Deactivate (${selectedBeacon.activeGames.length} Active Games)`
+                            ) : (
+                              'Deactivate Beacon'
+                            )}
+                                </Button>
+                              )}
                       </>
                     ) : (
                       <>
-                        <Button 
-                          className="w-full bg-[#ff00ff] hover:bg-[#ff00ff]/90 text-white"
-                          onClick={() => handleActivateBeacon(selectedBeacon.id)}
-                          disabled={updatingBeacon === selectedBeacon.id}
-                        >
-                          {updatingBeacon === selectedBeacon.id ? (
-                            <>
-                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                              Activating...
-                      </>
-                    ) : (
-                            <>
-                              <Gamepad2 className="h-4 w-4 mr-2" />
-                        Activate Beacon
-                            </>
-                          )}
-                      </Button>
+                        {isAuthenticated && (
+                          <Button 
+                            className="w-full bg-[#ff00ff] hover:bg-[#ff00ff]/90 text-white"
+                            onClick={() => handleActivateBeacon(selectedBeacon.id)}
+                            disabled={updatingBeacon === selectedBeacon.id}
+                          >
+                            {updatingBeacon === selectedBeacon.id ? (
+                              <>
+                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                Activating...
+                        </>
+                      ) : (
+                              <>
+                                <Gamepad2 className="h-4 w-4 mr-2" />
+                          Activate Beacon
+                              </>
+                            )}
+                        </Button>
+                        )}
                         <p className="text-gray-500 text-xs text-center">
                           Activate this beacon to enable game sessions
                         </p>
