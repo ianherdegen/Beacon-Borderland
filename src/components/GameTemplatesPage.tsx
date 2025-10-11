@@ -207,7 +207,7 @@ export function GameTemplatesPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-white mb-2">Game Templates</h1>
-        <p className="text-gray-400">Manage game templates and rules</p>
+        <p className="text-gray-400">Game templates and rules</p>
       </div>
 
       {/* Search and Filters */}

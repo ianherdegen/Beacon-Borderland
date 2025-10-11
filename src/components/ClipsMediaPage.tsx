@@ -188,7 +188,7 @@ export function ClipsMediaPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-white mb-2">Clips & Media</h1>
-        <p className="text-gray-400">Manage explainer clips and match footage</p>
+        <p className="text-gray-400">Explainer clips and match footage</p>
       </div>
 
       {/* Search Bar */}
