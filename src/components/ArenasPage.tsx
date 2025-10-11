@@ -9,12 +9,12 @@ import { Search, Eye, Radio, MapPin, Gamepad2, FileCode, AlertTriangle, Trophy, 
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from './ui/sheet';
 import { Alert, AlertDescription } from './ui/alert';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
-import { BeaconsService } from '../services/beacons';
-import { BeaconGamesService, BeaconGamePlayersService } from '../services/beacon-games';
+import { ArenasService } from '../services/arenas';
+import { ArenaGamesService, ArenaGamePlayersService } from '../services/arena-games';
 import { GameTemplatesService } from '../services/game-templates';
 import { PlayersService } from '../services/players';
 import { supabase } from '../lib/supabase';
-import { Beacon, BeaconGameWithDetails, GameTemplate, Player, BeaconGamePlayerWithDetails } from '../types';
+import { Arena, ArenaGameWithDetails, GameTemplate, Player, ArenaGamePlayerWithDetails } from '../types';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from './ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
@@ -43,8 +43,8 @@ const getRelativeTime = (dateString: string): string => {
 };
 
 
-// Extended beacon type for the UI
-interface BeaconWithLocation extends Beacon {
+// Extended arena type for the UI
+interface ArenaWithLocation extends Arena {
   coordinates?: string; // Now stores the address
   gameTemplate?: string | null;
   templateType?: GameType | null;
@@ -78,10 +78,10 @@ const getTemplateTypeIcon = (type: GameType | null) => {
   }
 };
 
-export function BeaconsPage() {
+export function ArenasPage() {
   const { isAuthenticated } = useAuth();
-  const [beacons, setBeacons] = useState<BeaconWithLocation[]>([]);
-  const [selectedBeacon, setSelectedBeacon] = useState<BeaconWithLocation | null>(null);
+  const [arenas, setArenas] = useState<ArenaWithLocation[]>([]);
+  const [selectedArena, setSelectedArena] = useState<ArenaWithLocation | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -89,7 +89,7 @@ export function BeaconsPage() {
   const [gameOutcomes, setGameOutcomes] = useState<Record<string, 'win' | 'eliminated' | null>>({});
   const [gameOutcomesConfirmed, setGameOutcomesConfirmed] = useState<Record<string, boolean>>({});
   const [versusPlayerOutcomes, setVersusPlayerOutcomes] = useState<Record<string, Record<string, 'win' | 'eliminated' | null>>>({});
-  const [updatingBeacon, setUpdatingBeacon] = useState<string | null>(null);
+  const [updatingArena, setUpdatingArena] = useState<string | null>(null);
   const [gameTemplates, setGameTemplates] = useState<GameTemplate[]>([]);
   const [isTemplateDialogOpen, setIsTemplateDialogOpen] = useState(false);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>('');
@@ -101,38 +101,38 @@ export function BeaconsPage() {
   const [allPlayers, setAllPlayers] = useState<Player[]>([]);
   const [managingParticipants, setManagingParticipants] = useState(false);
   const [cancelingGame, setCancelingGame] = useState<string | null>(null);
-  const [isCreateBeaconDialogOpen, setIsCreateBeaconDialogOpen] = useState(false);
-  const [creatingBeacon, setCreatingBeacon] = useState(false);
+  const [isCreateArenaDialogOpen, setIsCreateArenaDialogOpen] = useState(false);
+  const [creatingArena, setCreatingArena] = useState(false);
   const [endingGame, setEndingGame] = useState<string | null>(null);
-  const [newBeacon, setNewBeacon] = useState({
+  const [newArena, setNewArena] = useState({
     name: '',
     address: '',
     active: false
   });
 
-  // Fetch beacons data function
-  const fetchBeacons = async () => {
+  // Fetch arenas data function
+  const fetchArenas = async () => {
     try {
       setLoading(true);
       setError(null);
-      console.log('Fetching beacons and active games...');
+      console.log('Fetching arenas and active games...');
       
-      // Fetch beacons, active games, and game templates in parallel
-      const [beaconsData, activeGamesData, gameTemplatesData] = await Promise.all([
-        BeaconsService.getAll(),
-        BeaconGamesService.getActive(),
+      // Fetch arenas, active games, and game templates in parallel
+      const [arenasData, activeGamesData, gameTemplatesData] = await Promise.all([
+        ArenasService.getAll(),
+        ArenaGamesService.getActive(),
         GameTemplatesService.getAll()
       ]);
 
       // Debug: Let's also test a direct query to see what we get
       console.log('Testing direct query for active games with players...');
       const { data: directTest, error: directError } = await supabase
-        .from('beacon_games')
+        .from('arena_games')
         .select(`
           id,
-          beacon_id,
+          arena_id,
           status,
-          beacon_game_players(
+          arena_game_players(
             id,
             player_id,
             player_outcome,
@@ -146,12 +146,12 @@ export function BeaconsPage() {
         console.error('Direct query error:', directError);
       } else {
         console.log('Direct query result:', directTest);
-        if (directTest && directTest[0]?.beacon_game_players) {
-          console.log('Direct query players:', directTest[0].beacon_game_players);
+        if (directTest && directTest[0]?.arena_game_players) {
+          console.log('Direct query players:', directTest[0].arena_game_players);
         }
       }
       
-        console.log('Fetched beacons:', beaconsData);
+        console.log('Fetched arenas:', arenasData);
         console.log('Fetched active games:', activeGamesData);
         console.log('Fetched game templates:', gameTemplatesData);
         
@@ -164,7 +164,7 @@ export function BeaconsPage() {
           if (activeGamesData[0]?.players) {
             console.log('Sample game players:', activeGamesData[0].players);
             console.log('Sample player structure:', activeGamesData[0].players[0]);
-            const firstPlayer = activeGamesData[0].players[0] as BeaconGamePlayerWithDetails;
+            const firstPlayer = activeGamesData[0].players[0] as ArenaGamePlayerWithDetails;
             console.log('Player username:', firstPlayer?.player_username);
             console.log('Player avatar:', firstPlayer?.player_avatar);
             console.log('Full player object keys:', Object.keys(activeGamesData[0].players[0] || {}));
@@ -181,16 +181,16 @@ export function BeaconsPage() {
       });
       setGameTemplates(sortedTemplates);
       
-      // Process beacons with their active status and game template info
-      const beaconsWithStatus = beaconsData.map((beacon) => {
-        // Find active games for this beacon and transform them to match UI expectations
-        const activeGamesForBeacon = activeGamesData
-          .filter(game => game.beacon_id === beacon.id)
+      // Process arenas with their active status and game template info
+      const arenasWithStatus = arenasData.map((arena) => {
+        // Find active games for this arena and transform them to match UI expectations
+        const activeGamesForArena = activeGamesData
+          .filter(game => game.arena_id === arena.id)
           .map(game => {
             console.log('Processing game:', game.id, 'with players:', game.players);
             if (game.players && game.players.length > 0) {
               console.log('First player in game:', game.players[0]);
-              const firstPlayer = game.players[0] as BeaconGamePlayerWithDetails;
+              const firstPlayer = game.players[0] as ArenaGamePlayerWithDetails;
               console.log('Player username field:', firstPlayer?.player_username);
               console.log('Player avatar field:', firstPlayer?.player_avatar);
             }
@@ -205,173 +205,173 @@ export function BeaconsPage() {
             };
           });
         
-        // Get game template info from the beacon's assigned template or from active games
+        // Get game template info from the arena's assigned template or from active games
         let gameTemplate: string | null = null;
         let templateType: GameType | null = null;
         
-        if (beacon.game_template_id) {
-          // Use the beacon's assigned template
-          const assignedTemplate = gameTemplatesData.find(t => t.id === beacon.game_template_id);
+        if (arena.game_template_id) {
+          // Use the arena's assigned template
+          const assignedTemplate = gameTemplatesData.find(t => t.id === arena.game_template_id);
           gameTemplate = assignedTemplate?.name || null;
           templateType = (assignedTemplate?.type?.toLowerCase() as GameType) || null;
-        } else if (activeGamesForBeacon.length > 0) {
+        } else if (activeGamesForArena.length > 0) {
           // Fallback to active game template if no assigned template
-          const firstActiveGame = activeGamesForBeacon[0];
+          const firstActiveGame = activeGamesForArena[0];
           gameTemplate = firstActiveGame?.game_template_name || null;
           templateType = (firstActiveGame?.game_template_type?.toLowerCase() as GameType) || null;
         }
         
         return {
-          ...beacon,
-          coordinates: beacon.address || 'No address',
+          ...arena,
+          coordinates: arena.address || 'No address',
           // Use the active field from the database instead of calculating it
-          active: beacon.active,
+          active: arena.active,
           gameTemplate: gameTemplate,
           templateType: templateType,
-          activeGames: activeGamesForBeacon,
+          activeGames: activeGamesForArena,
         };
       });
       
-      console.log('Processed beacons with status:', beaconsWithStatus);
-      setBeacons(beaconsWithStatus);
+      console.log('Processed arenas with status:', arenasWithStatus);
+      setArenas(arenasWithStatus);
       
     } catch (err) {
-      console.error('Error fetching beacons:', err);
-      setError('Failed to load beacons. Please try again.');
+      console.error('Error fetching arenas:', err);
+      setError('Failed to load arenas. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  // Fetch beacons data on component mount
+  // Fetch arenas data on component mount
   useEffect(() => {
-    fetchBeacons();
+    fetchArenas();
   }, []);
 
-  const filteredBeacons = beacons.filter((beacon) =>
-    beacon.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    beacon.id.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredArenas = arenas.filter((arena) =>
+    arena.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    arena.id.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const totalActiveGames = beacons.reduce((sum, b) => sum + (b.activeGames?.length || 0), 0);
+  const totalActiveGames = arenas.reduce((sum, b) => sum + (b.activeGames?.length || 0), 0);
 
-  // Handle activating a beacon
-  const handleActivateBeacon = async (beaconId: string) => {
+  // Handle activating a arena
+  const handleActivateArena = async (arenaId: string) => {
     try {
-      setUpdatingBeacon(beaconId);
+      setUpdatingArena(arenaId);
       setError(null);
       
-      console.log('Activating beacon:', beaconId);
-      const updatedBeacon = await BeaconsService.activate(beaconId);
-      console.log('Beacon activated successfully:', updatedBeacon);
+      console.log('Activating arena:', arenaId);
+      const updatedArena = await ArenasService.activate(arenaId);
+      console.log('Arena activated successfully:', updatedArena);
       
       // Update the local state
-      setBeacons(prevBeacons => 
-        prevBeacons.map(beacon => 
-          beacon.id === beaconId 
-            ? { ...beacon, active: true }
-            : beacon
+      setArenas(prevArenas => 
+        prevArenas.map(arena => 
+          arena.id === arenaId 
+            ? { ...arena, active: true }
+            : arena
         )
       );
       
-      // Update the selected beacon if it's the one being activated
-      if (selectedBeacon && selectedBeacon.id === beaconId) {
-        setSelectedBeacon(prev => prev ? { ...prev, active: true } : null);
+      // Update the selected arena if it's the one being activated
+      if (selectedArena && selectedArena.id === arenaId) {
+        setSelectedArena(prev => prev ? { ...prev, active: true } : null);
       }
       
       // Show success toast
-      toast.success('Beacon activated successfully', {
-        description: `Beacon ${beaconId} is now active`,
+      toast.success('Arena activated successfully', {
+        description: `Arena ${arenaId} is now active`,
       });
       
-      // Refresh the data to get the latest beacon information
-      await fetchBeacons();
+      // Refresh the data to get the latest arena information
+      await fetchArenas();
       
     } catch (err: any) {
-      console.error('Error activating beacon:', err);
-      const errorMessage = err?.message || 'Failed to activate beacon. Please try again.';
+      console.error('Error activating arena:', err);
+      const errorMessage = err?.message || 'Failed to activate arena. Please try again.';
       setError(errorMessage);
       
       // Show error toast
-      toast.error('Failed to activate beacon', {
+      toast.error('Failed to activate arena', {
         description: errorMessage,
       });
     } finally {
-      setUpdatingBeacon(null);
+      setUpdatingArena(null);
     }
   };
 
-  // Handle deactivating a beacon
-  const handleDeactivateBeacon = async (beaconId: string) => {
+  // Handle deactivating a arena
+  const handleDeactivateArena = async (arenaId: string) => {
     try {
-      setUpdatingBeacon(beaconId);
+      setUpdatingArena(arenaId);
       setError(null);
       
-      // Check if beacon has active games
-      const beacon = beacons.find(b => b.id === beaconId);
-      if (beacon && beacon.activeGames && beacon.activeGames.length > 0) {
-        const errorMessage = `Cannot deactivate beacon ${beaconId}. It has ${beacon.activeGames.length} active game(s). Please end all active games first.`;
+      // Check if arena has active games
+      const arena = arenas.find(b => b.id === arenaId);
+      if (arena && arena.activeGames && arena.activeGames.length > 0) {
+        const errorMessage = `Cannot deactivate arena ${arenaId}. It has ${arena.activeGames.length} active game(s). Please end all active games first.`;
         setError(errorMessage);
         
         // Show error toast
-        toast.error('Cannot deactivate beacon', {
+        toast.error('Cannot deactivate arena', {
           description: errorMessage,
         });
         
-        setUpdatingBeacon(null);
+        setUpdatingArena(null);
         return;
       }
       
-      console.log('Deactivating beacon:', beaconId);
-      const updatedBeacon = await BeaconsService.deactivate(beaconId);
-      console.log('Beacon deactivated successfully:', updatedBeacon);
+      console.log('Deactivating arena:', arenaId);
+      const updatedArena = await ArenasService.deactivate(arenaId);
+      console.log('Arena deactivated successfully:', updatedArena);
       
       // Update the local state
-      setBeacons(prevBeacons => 
-        prevBeacons.map(beacon => 
-          beacon.id === beaconId 
-            ? { ...beacon, active: false }
-            : beacon
+      setArenas(prevArenas => 
+        prevArenas.map(arena => 
+          arena.id === arenaId 
+            ? { ...arena, active: false }
+            : arena
         )
       );
       
-      // Update the selected beacon if it's the one being deactivated
-      if (selectedBeacon && selectedBeacon.id === beaconId) {
-        setSelectedBeacon(prev => prev ? { ...prev, active: false } : null);
+      // Update the selected arena if it's the one being deactivated
+      if (selectedArena && selectedArena.id === arenaId) {
+        setSelectedArena(prev => prev ? { ...prev, active: false } : null);
       }
       
       // Show success toast
-      toast.success('Beacon deactivated successfully', {
-        description: `Beacon ${beaconId} is now inactive`,
+      toast.success('Arena deactivated successfully', {
+        description: `Arena ${arenaId} is now inactive`,
       });
       
-      // Refresh the data to get the latest beacon information
-      await fetchBeacons();
+      // Refresh the data to get the latest arena information
+      await fetchArenas();
       
     } catch (err: any) {
-      console.error('Error deactivating beacon:', err);
-      const errorMessage = err?.message || 'Failed to deactivate beacon. Please try again.';
+      console.error('Error deactivating arena:', err);
+      const errorMessage = err?.message || 'Failed to deactivate arena. Please try again.';
       setError(errorMessage);
       
       // Show error toast
-      toast.error('Failed to deactivate beacon', {
+      toast.error('Failed to deactivate arena', {
         description: errorMessage,
       });
     } finally {
-      setUpdatingBeacon(null);
+      setUpdatingArena(null);
     }
   };
 
-  // Handle assigning a game template to a beacon
-  const handleAssignTemplate = async (beaconId: string, templateId: number) => {
+  // Handle assigning a game template to a arena
+  const handleAssignTemplate = async (arenaId: string, templateId: number) => {
     try {
       setAssigningTemplate(true);
       setError(null);
       
-      // Check if beacon has active games
-      const beacon = beacons.find(b => b.id === beaconId);
-      if (beacon && beacon.activeGames && beacon.activeGames.length > 0) {
-        const errorMessage = `Cannot change template: Beacon ${beaconId} has ${beacon.activeGames.length} active game(s). Please end all active games first.`;
+      // Check if arena has active games
+      const arena = arenas.find(b => b.id === arenaId);
+      if (arena && arena.activeGames && arena.activeGames.length > 0) {
+        const errorMessage = `Cannot change template: Arena ${arenaId} has ${arena.activeGames.length} active game(s). Please end all active games first.`;
         setError(errorMessage);
         
         // Show error toast
@@ -383,17 +383,17 @@ export function BeaconsPage() {
         return;
       }
       
-      console.log('Assigning template to beacon:', beaconId, 'template:', templateId);
+      console.log('Assigning template to arena:', arenaId, 'template:', templateId);
       
-      // Assign the template to the beacon
-      const updatedBeacon = await BeaconsService.assignTemplate(beaconId, templateId);
+      // Assign the template to the arena
+      const updatedArena = await ArenasService.assignTemplate(arenaId, templateId);
       
       // Get the assigned template details
       const assignedTemplate = gameTemplates.find(t => t.id === templateId);
       
-      // Update the selected beacon immediately with the new template info
-      if (selectedBeacon && selectedBeacon.id === beaconId) {
-        setSelectedBeacon(prev => prev ? {
+      // Update the selected arena immediately with the new template info
+      if (selectedArena && selectedArena.id === arenaId) {
+        setSelectedArena(prev => prev ? {
           ...prev,
           game_template_id: templateId,
           gameTemplate: assignedTemplate?.name || null,
@@ -401,17 +401,17 @@ export function BeaconsPage() {
         } : null);
       }
       
-      // Update the beacons list immediately
-      setBeacons(prevBeacons => 
-        prevBeacons.map(beacon => 
-          beacon.id === beaconId 
+      // Update the arenas list immediately
+      setArenas(prevArenas => 
+        prevArenas.map(arena => 
+          arena.id === arenaId 
             ? {
-                ...beacon,
+                ...arena,
                 game_template_id: templateId,
                 gameTemplate: assignedTemplate?.name || null,
                 templateType: (assignedTemplate?.type?.toLowerCase() as GameType) || null
               }
-            : beacon
+            : arena
         )
       );
       
@@ -421,11 +421,11 @@ export function BeaconsPage() {
       
       // Show success toast
       toast.success('Game template assigned successfully', {
-        description: `Template "${assignedTemplate?.name}" assigned to beacon ${beaconId}`,
+        description: `Template "${assignedTemplate?.name}" assigned to arena ${arenaId}`,
       });
       
-      // Refresh the data to get the latest beacon information (for consistency)
-      await fetchBeacons();
+      // Refresh the data to get the latest arena information (for consistency)
+      await fetchArenas();
       
     } catch (err: any) {
       console.error('Error assigning template:', err);
@@ -498,16 +498,16 @@ export function BeaconsPage() {
     try {
       setManagingParticipants(true);
       
-      // Use the BeaconGamePlayersService methods from beacon-games.ts
+      // Use the ArenaGamePlayersService methods from arena-games.ts
       const { data: newParticipant, error } = await supabase
-        .from('beacon_game_players')
+        .from('arena_game_players')
         .insert([{
-          beacon_game_id: selectedGameForParticipants.id,
+          arena_game_id: selectedGameForParticipants.id,
           player_id: playerId
         }])
         .select(`
           id,
-          beacon_game_id,
+          arena_game_id,
           player_id,
           player_outcome,
           joined_at,
@@ -549,7 +549,7 @@ export function BeaconsPage() {
       // Update the selected game for participants immediately
       const addedPlayer = {
         id: newParticipant.id,
-        beacon_game_id: newParticipant.beacon_game_id,
+        arena_game_id: newParticipant.arena_game_id,
         player_id: newParticipant.player_id,
         player_outcome: newParticipant.player_outcome,
         joined_at: newParticipant.joined_at,
@@ -562,12 +562,12 @@ export function BeaconsPage() {
         players: [...(prev?.players || []), addedPlayer]
       }));
 
-      // Update the main beacons state to reflect the change
-      setBeacons(prev => prev.map(beacon => {
-        if (beacon.id === selectedBeacon?.id) {
+      // Update the main arenas state to reflect the change
+      setArenas(prev => prev.map(arena => {
+        if (arena.id === selectedArena?.id) {
           return {
-            ...beacon,
-            activeGames: beacon.activeGames?.map(game => {
+            ...arena,
+            activeGames: arena.activeGames?.map(game => {
               if (game.id === selectedGameForParticipants.id) {
                 return {
                   ...game,
@@ -578,12 +578,12 @@ export function BeaconsPage() {
             })
           };
         }
-        return beacon;
+        return arena;
       }));
 
-      // Update selectedBeacon state as well
-      if (selectedBeacon) {
-        setSelectedBeacon(prev => {
+      // Update selectedArena state as well
+      if (selectedArena) {
+        setSelectedArena(prev => {
           if (!prev) return prev;
           return {
             ...prev,
@@ -618,7 +618,7 @@ export function BeaconsPage() {
       
       // Use direct Supabase call to remove participant
       const { error } = await supabase
-        .from('beacon_game_players')
+        .from('arena_game_players')
         .delete()
         .eq('id', playerRecordId);
 
@@ -659,12 +659,12 @@ export function BeaconsPage() {
         players: prev?.players?.filter(player => player.id !== playerRecordId) || []
       }));
 
-      // Update the main beacons state to reflect the change
-      setBeacons(prev => prev.map(beacon => {
-        if (beacon.id === selectedBeacon?.id) {
+      // Update the main arenas state to reflect the change
+      setArenas(prev => prev.map(arena => {
+        if (arena.id === selectedArena?.id) {
           return {
-            ...beacon,
-            activeGames: beacon.activeGames?.map(game => {
+            ...arena,
+            activeGames: arena.activeGames?.map(game => {
               if (game.id === selectedGameForParticipants.id) {
                 return {
                   ...game,
@@ -675,12 +675,12 @@ export function BeaconsPage() {
             })
           };
         }
-        return beacon;
+        return arena;
       }));
 
-      // Update selectedBeacon state as well
-      if (selectedBeacon) {
-        setSelectedBeacon(prev => {
+      // Update selectedArena state as well
+      if (selectedArena) {
+        setSelectedArena(prev => {
           if (!prev) return prev;
           return {
             ...prev,
@@ -708,16 +708,16 @@ export function BeaconsPage() {
   };
 
   const handleStartGame = async () => {
-    if (!selectedBeacon || (!selectedBeacon.game_template_id && !selectedBeacon.gameTemplate)) {
-      toast.error('No game template selected for this beacon');
+    if (!selectedArena || (!selectedArena.game_template_id && !selectedArena.gameTemplate)) {
+      toast.error('No game template selected for this arena');
       return;
     }
     
     // Use game_template_id if available, otherwise we need to find it from the gameTemplate name
-    let templateId = selectedBeacon.game_template_id;
-    if (!templateId && selectedBeacon.gameTemplate) {
+    let templateId = selectedArena.game_template_id;
+    if (!templateId && selectedArena.gameTemplate) {
       // Find the template ID from the gameTemplate name
-      const template = gameTemplates.find(t => t.name === selectedBeacon.gameTemplate);
+      const template = gameTemplates.find(t => t.name === selectedArena.gameTemplate);
       if (template) {
         templateId = template.id;
       } else {
@@ -729,9 +729,9 @@ export function BeaconsPage() {
     try {
       setStartingGame(true);
       
-      // Create a new beacon game with the current template
-      const newGame = await BeaconGamesService.create({
-        beacon_id: selectedBeacon.id,
+      // Create a new arena game with the current template
+      const newGame = await ArenaGamesService.create({
+        arena_id: selectedArena.id,
         game_template_id: templateId,
         status: 'Active'
       });
@@ -739,12 +739,12 @@ export function BeaconsPage() {
       toast.success('New game started successfully!');
       setIsStartGameDialogOpen(false);
       
-      // Refresh the beacons data to show the new game
-      await fetchBeacons();
+      // Refresh the arenas data to show the new game
+      await fetchArenas();
       
-      // Update selectedBeacon state to show the new game immediately
-      if (selectedBeacon) {
-        setSelectedBeacon(prev => {
+      // Update selectedArena state to show the new game immediately
+      if (selectedArena) {
+        setSelectedArena(prev => {
           if (!prev) return prev;
           return {
             ...prev,
@@ -755,8 +755,8 @@ export function BeaconsPage() {
                 startTime: newGame.start_time ? getRelativeTime(newGame.start_time) : 'Just now',
                 playerCount: 0,
                 players: [],
-                game_template_name: selectedBeacon.gameTemplate,
-                game_template_type: selectedBeacon.templateType,
+                game_template_name: selectedArena.gameTemplate,
+                game_template_type: selectedArena.templateType,
                 status: 'Active'
               }
             ]
@@ -778,19 +778,19 @@ export function BeaconsPage() {
       setCancelingGame(gameId);
       
       // Update the game status to 'Cancelled'
-      await BeaconGamesService.update(gameId, {
+      await ArenaGamesService.update(gameId, {
         status: 'Cancelled',
         end_time: new Date().toISOString()
       });
 
       toast.success('Game cancelled successfully');
       
-      // Refresh the beacons data to show the updated game status
-      await fetchBeacons();
+      // Refresh the arenas data to show the updated game status
+      await fetchArenas();
       
-      // Update selectedBeacon state to remove the cancelled game from active games
-      if (selectedBeacon) {
-        setSelectedBeacon(prev => {
+      // Update selectedArena state to remove the cancelled game from active games
+      if (selectedArena) {
+        setSelectedArena(prev => {
           if (!prev) return prev;
           return {
             ...prev,
@@ -808,42 +808,42 @@ export function BeaconsPage() {
     }
   };
 
-  const handleCreateBeacon = async () => {
+  const handleCreateArena = async () => {
     // Validate required fields
-    if (!newBeacon.name.trim() || !newBeacon.address.trim()) {
+    if (!newArena.name.trim() || !newArena.address.trim()) {
       toast.error('Please fill in all required fields');
       return;
     }
 
     try {
-      setCreatingBeacon(true);
+      setCreatingArena(true);
       
-      // Create the beacon (ID will be auto-generated)
-      await BeaconsService.create({
-        name: newBeacon.name.trim(),
-        address: newBeacon.address.trim(),
-        active: newBeacon.active
+      // Create the arena (ID will be auto-generated)
+      await ArenasService.create({
+        name: newArena.name.trim(),
+        address: newArena.address.trim(),
+        active: newArena.active
       });
 
-      toast.success('Beacon created successfully!');
-      setIsCreateBeaconDialogOpen(false);
+      toast.success('Arena created successfully!');
+      setIsCreateArenaDialogOpen(false);
       
       // Reset form
-      setNewBeacon({
+      setNewArena({
         name: '',
         address: '',
         active: false
       });
       
-      // Refresh the beacons data to show the new beacon
-      await fetchBeacons();
+      // Refresh the arenas data to show the new arena
+      await fetchArenas();
       
     } catch (err: any) {
-      console.error('Error creating beacon:', err);
-      const errorMessage = err?.message || 'Failed to create beacon. Please try again.';
-      toast.error('Failed to create beacon', { description: errorMessage });
+      console.error('Error creating arena:', err);
+      const errorMessage = err?.message || 'Failed to create arena. Please try again.';
+      toast.error('Failed to create arena', { description: errorMessage });
     } finally {
-      setCreatingBeacon(false);
+      setCreatingArena(false);
     }
   };
 
@@ -867,7 +867,7 @@ export function BeaconsPage() {
         return;
       }
 
-      // Prepare outcome data for beacon_games table
+      // Prepare outcome data for arena_games table
       let outcomeData: any = {};
       
       if (templateType?.toLowerCase() === 'versus' && versusOutcomes) {
@@ -895,14 +895,14 @@ export function BeaconsPage() {
       }
 
       // Update the game status to 'Completed', set end time, and update outcome
-      console.log('Updating beacon game with outcome data:', outcomeData);
-      await BeaconGamesService.update(gameId, {
+      console.log('Updating arena game with outcome data:', outcomeData);
+      await ArenaGamesService.update(gameId, {
         status: 'Completed',
         end_time: new Date().toISOString(),
         outcome: outcomeData
       });
 
-      // Update player outcomes in beacon_game_players table
+      // Update player outcomes in arena_game_players table
       // First, let's check what players are actually in this game
       // Fetch players with their usernames for proper identification
       console.log('🎯 CONFIRM OUTCOME DEBUG - Starting player outcome update');
@@ -911,13 +911,13 @@ export function BeaconsPage() {
       console.log('🎯 Game Outcome:', gameOutcome);
       
       const { data: gamePlayers, error: playersFetchError } = await supabase
-        .from('beacon_game_players')
+        .from('arena_game_players')
         .select(`
           id,
           player_id,
           player_outcome
         `)
-        .eq('beacon_game_id', gameId);
+        .eq('arena_game_id', gameId);
 
       if (playersFetchError) {
         console.error('❌ Error fetching game players:', playersFetchError);
@@ -944,14 +944,14 @@ export function BeaconsPage() {
         // For versus games, we need to get player usernames to match them
         // Let's fetch the player data separately for versus games
         const { data: versusGamePlayers, error: versusError } = await supabase
-          .from('beacon_game_players')
+          .from('arena_game_players')
           .select(`
             id,
             player_id,
             player_outcome,
             players!inner(username)
           `)
-          .eq('beacon_game_id', gameId);
+          .eq('arena_game_id', gameId);
         
         if (versusError) {
           console.error('Error fetching versus game players:', versusError);
@@ -980,7 +980,7 @@ export function BeaconsPage() {
             
             // Try SQL function first, fallback to direct update
             const { data: sqlData, error: sqlError } = await supabase.rpc('update_player_outcome_direct', {
-              p_beacon_game_player_id: player.id,
+              p_arena_game_player_id: player.id,
               p_outcome: outcome === 'win' ? 'win' : 'eliminated'
             });
             
@@ -989,7 +989,7 @@ export function BeaconsPage() {
               
               // Fallback to direct update
               const { data, error } = await supabase
-                .from('beacon_game_players')
+                .from('arena_game_players')
                 .update(updateData)
                 .eq('id', player.id)
                 .select();
@@ -1046,12 +1046,12 @@ export function BeaconsPage() {
           
           console.log('🎯 Update data being sent:', updateData);
           console.log('🎯 Player ID to update:', player.id);
-          console.log('🎯 Beacon game ID:', gameId);
+          console.log('🎯 Arena game ID:', gameId);
           
           // Try the SQL function first, fallback to direct update if it fails
           console.log('🎯 Attempting update via SQL function...');
           const { data: sqlData, error: sqlError } = await supabase.rpc('update_player_outcome_direct', {
-            p_beacon_game_player_id: player.id,
+            p_arena_game_player_id: player.id,
             p_outcome: gameOutcome === 'win' ? 'win' : 'eliminated'
           });
           
@@ -1060,7 +1060,7 @@ export function BeaconsPage() {
             
             // Fallback to direct update
             const { data: directData, error: directError } = await supabase
-              .from('beacon_game_players')
+              .from('arena_game_players')
               .update(updateData)
               .eq('id', player.id)
               .select();
@@ -1102,13 +1102,13 @@ export function BeaconsPage() {
       // Verify the updates worked by fetching the data again
       console.log('🎯 VERIFYING UPDATES - Fetching updated player data...');
       const { data: verifyPlayers, error: verifyError } = await supabase
-        .from('beacon_game_players')
+        .from('arena_game_players')
         .select(`
           id,
           player_id,
           player_outcome
         `)
-        .eq('beacon_game_id', gameId);
+        .eq('arena_game_id', gameId);
 
       if (verifyError) {
         console.error('❌ Error verifying player updates:', verifyError);
@@ -1142,12 +1142,12 @@ export function BeaconsPage() {
         return newConfirmed;
       });
       
-      // Refresh the beacons data to show the updated game status
-      await fetchBeacons();
+      // Refresh the arenas data to show the updated game status
+      await fetchArenas();
       
-      // Update selectedBeacon state to remove the completed game from active games
-      if (selectedBeacon) {
-        setSelectedBeacon(prev => {
+      // Update selectedArena state to remove the completed game from active games
+      if (selectedArena) {
+        setSelectedArena(prev => {
           if (!prev) return prev;
           return {
             ...prev,
@@ -1159,9 +1159,9 @@ export function BeaconsPage() {
       // Update last_game_at for all players in this game
       console.log('🎯 Updating last_game_at for all players in game:', gameId);
       const { data: gamePlayersForUpdate, error: playersUpdateError } = await supabase
-        .from('beacon_game_players')
+        .from('arena_game_players')
         .select('player_id')
-        .eq('beacon_game_id', gameId);
+        .eq('arena_game_id', gameId);
 
       if (playersUpdateError) {
         console.error('❌ Error fetching players for last_game_at update:', playersUpdateError);
@@ -1494,8 +1494,8 @@ export function BeaconsPage() {
     <TooltipProvider>
       <div className="space-y-6">
         <div>
-          <h1 className="text-white mb-2">Beacons</h1>
-          <p className="text-gray-400">Monitor all beacon locations</p>
+          <h1 className="text-white mb-2">Arenas</h1>
+          <p className="text-gray-400">Monitor all arena locations</p>
         </div>
 
         {/* Search Bar */}
@@ -1504,7 +1504,7 @@ export function BeaconsPage() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
               <Input
-                placeholder="Search beacons by name or ID..."
+                placeholder="Search arenas by name or ID..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10 bg-gray-950 border-gray-800 text-white placeholder:text-gray-500"
@@ -1512,7 +1512,7 @@ export function BeaconsPage() {
             </div>
             {isAuthenticated && (
               <Button
-                onClick={() => setIsCreateBeaconDialogOpen(true)}
+                onClick={() => setIsCreateArenaDialogOpen(true)}
                 className="bg-[#00d9ff] hover:bg-[#00d9ff]/90 text-black"
               >
                 <Radio className="h-4 w-4" />
@@ -1525,15 +1525,15 @@ export function BeaconsPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card className="p-6 bg-gray-900 border-gray-800">
             <div className="flex justify-between items-center">
-              <span className="text-gray-400">Total Beacons</span>
-              <span className="text-white text-3xl">{beacons.length}</span>
+              <span className="text-gray-400">Total Arenas</span>
+              <span className="text-white text-3xl">{arenas.length}</span>
             </div>
           </Card>
           <Card className="p-6 bg-gray-900 border-gray-800">
             <div className="flex justify-between items-center">
-              <span className="text-gray-400">Active Beacons</span>
+              <span className="text-gray-400">Active Arenas</span>
               <span className="text-green-400 text-3xl">
-                {beacons.filter(b => b.active).length}
+                {arenas.filter(b => b.active).length}
               </span>
             </div>
           </Card>
@@ -1545,11 +1545,11 @@ export function BeaconsPage() {
           </Card>
         </div>
 
-        {/* Beacons Table */}
+        {/* Arenas Table */}
         <Card className="bg-gray-900 border-gray-800">
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <span className="text-gray-400">Loading beacons...</span>
+              <span className="text-gray-400">Loading arenas...</span>
             </div>
           ) : error ? (
             <div className="flex items-center justify-center py-12">
@@ -1568,7 +1568,7 @@ export function BeaconsPage() {
             <Table>
             <TableHeader>
               <TableRow className="border-gray-800 hover:bg-transparent">
-                <TableHead className="text-gray-400">Beacon ID</TableHead>
+                <TableHead className="text-gray-400">Arena ID</TableHead>
                 <TableHead className="text-gray-400">Name</TableHead>
                 <TableHead className="text-gray-400">Status</TableHead>
                 <TableHead className="text-gray-400">Active Games</TableHead>
@@ -1576,25 +1576,25 @@ export function BeaconsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredBeacons.map((beacon) => (
-                <TableRow key={beacon.id} className="border-gray-800 hover:bg-gray-800/50">
-                  <TableCell className="text-[#00d9ff]">{beacon.id}</TableCell>
-                  <TableCell className="text-white">{beacon.name}</TableCell>
+              {filteredArenas.map((arena) => (
+                <TableRow key={arena.id} className="border-gray-800 hover:bg-gray-800/50">
+                  <TableCell className="text-[#00d9ff]">{arena.id}</TableCell>
+                  <TableCell className="text-white">{arena.name}</TableCell>
                   <TableCell>
                     <Badge
                       className={
-                        beacon.active
+                        arena.active
                           ? 'bg-green-500/20 text-green-400 border-green-500/50'
                           : 'bg-gray-500/20 text-gray-400 border-gray-500/50'
                       }
                     >
-                      {beacon.active ? 'Active' : 'Inactive'}
+                      {arena.active ? 'Active' : 'Inactive'}
                     </Badge>
                   </TableCell>
                   <TableCell>
-                      {beacon.active ? (
+                      {arena.active ? (
                         <span className="text-[#ff00ff]">
-                          {beacon.activeGames?.length || 0}
+                          {arena.activeGames?.length || 0}
                         </span>
                       ) : (
                         <span className="text-gray-500">-</span>
@@ -1605,11 +1605,11 @@ export function BeaconsPage() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => setSelectedBeacon(beacon)}
+                        onClick={() => setSelectedArena(arena)}
                         className="text-[#00d9ff] border-[#00d9ff]/30 hover:bg-[#00d9ff]/10 hover:text-[#00d9ff] hover:border-[#00d9ff]/50"
                       >
                         <Eye className="h-4 w-4 mr-2" />
-                        View Beacon
+                        View Arena
                       </Button>
                         <TooltipProvider>
                           <Tooltip>
@@ -1618,17 +1618,17 @@ export function BeaconsPage() {
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  onClick={() => beacon.active ? handleDeactivateBeacon(beacon.id) : handleActivateBeacon(beacon.id)}
-                                  disabled={updatingBeacon === beacon.id || (beacon.active && beacon.activeGames && beacon.activeGames.length > 0)}
+                                  onClick={() => arena.active ? handleDeactivateArena(arena.id) : handleActivateArena(arena.id)}
+                                  disabled={updatingArena === arena.id || (arena.active && arena.activeGames && arena.activeGames.length > 0)}
                                   className={
-                                    beacon.active 
+                                    arena.active 
                                       ? "text-red-400 hover:bg-red-500/10 hover:text-red-400" 
                                       : "text-green-400 hover:bg-green-500/10 hover:text-green-400"
                                   }
                                 >
-                                  {updatingBeacon === beacon.id ? (
+                                  {updatingArena === arena.id ? (
                                     <Loader2 className="h-4 w-4 animate-spin" />
-                                  ) : beacon.active ? (
+                                  ) : arena.active ? (
                                     <XCircle className="h-4 w-4" />
                                   ) : (
                                     <Radio className="h-4 w-4" />
@@ -1636,13 +1636,13 @@ export function BeaconsPage() {
                                 </Button>
                               )}
                             </TooltipTrigger>
-                            {beacon.active && beacon.activeGames && beacon.activeGames.length > 0 ? (
+                            {arena.active && arena.activeGames && arena.activeGames.length > 0 ? (
                               <TooltipContent>
-                                <p>Cannot deactivate: {beacon.activeGames.length} active game(s)</p>
+                                <p>Cannot deactivate: {arena.activeGames.length} active game(s)</p>
                               </TooltipContent>
                             ) : (
                               <TooltipContent>
-                                <p>{beacon.active ? 'Deactivate beacon' : 'Activate beacon'}</p>
+                                <p>{arena.active ? 'Deactivate arena' : 'Activate arena'}</p>
                               </TooltipContent>
                             )}
                           </Tooltip>
@@ -1657,16 +1657,16 @@ export function BeaconsPage() {
           )}
         </Card>
 
-        {/* Beacon Detail Side Panel */}
-        <Sheet open={selectedBeacon !== null} onOpenChange={() => setSelectedBeacon(null)}>
+        {/* Arena Detail Side Panel */}
+        <Sheet open={selectedArena !== null} onOpenChange={() => setSelectedArena(null)}>
           <SheetContent className="bg-gray-900 border-l border-gray-800 w-full sm:max-w-lg md:max-w-xl lg:max-w-2xl overflow-y-auto p-0">
-            {selectedBeacon && (
+            {selectedArena && (
               <>
                 <SheetHeader className="px-6 pt-6 pb-4 border-b border-gray-800 sticky top-0 bg-gray-900 z-10">
                   <div className="flex items-center justify-between">
-                    <SheetTitle className="text-white">Beacon Details</SheetTitle>
+                    <SheetTitle className="text-white">Arena Details</SheetTitle>
                     <button
-                      onClick={() => setSelectedBeacon(null)}
+                      onClick={() => setSelectedArena(null)}
                       className="text-gray-400 hover:text-white text-xl font-bold"
                     >
                       ×
@@ -1675,7 +1675,7 @@ export function BeaconsPage() {
                 </SheetHeader>
 
                 <div className="px-6 py-6 space-y-8">
-                  {/* Beacon Header */}
+                  {/* Arena Header */}
                   <div>
                     <div className="flex items-center gap-3 mb-3">
                       <Radio
@@ -1683,18 +1683,18 @@ export function BeaconsPage() {
                         style={{ filter: 'drop-shadow(0 0 6px rgba(0, 217, 255, 0.6))' }}
                       />
                       <div>
-                        <h2 className="text-white text-xl">{selectedBeacon.name}</h2>
-                        <p className="text-gray-400 text-sm">{selectedBeacon.id}</p>
+                        <h2 className="text-white text-xl">{selectedArena.name}</h2>
+                        <p className="text-gray-400 text-sm">{selectedArena.id}</p>
                       </div>
                     </div>
                     <Badge
                       className={
-                        selectedBeacon.active
+                        selectedArena.active
                           ? 'bg-green-500/20 text-green-400 border-green-500/50'
                           : 'bg-gray-500/20 text-gray-400 border-gray-500/50'
                       }
                     >
-                      {selectedBeacon.active ? 'Active' : 'Inactive'}
+                      {selectedArena.active ? 'Active' : 'Inactive'}
                     </Badge>
                   </div>
 
@@ -1704,11 +1704,11 @@ export function BeaconsPage() {
                       <MapPin className="h-4 w-4 text-[#ff00ff]" />
                       <h3 className="text-white">Location</h3>
                     </div>
-                    <p className="text-gray-400">{selectedBeacon.coordinates || 'No address available'}</p>
+                    <p className="text-gray-400">{selectedArena.coordinates || 'No address available'}</p>
                   </Card>
 
                   {/* Active Game Template */}
-                  {selectedBeacon.active && selectedBeacon.gameTemplate ? (
+                  {selectedArena.active && selectedArena.gameTemplate ? (
                     <Card className="p-4 bg-gray-950 border-gray-800">
                       <div className="flex items-center gap-2 mb-3">
                         <FileCode className="h-5 w-5 text-[#00d9ff]" />
@@ -1716,17 +1716,17 @@ export function BeaconsPage() {
                       </div>
                       <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                          <span className="text-[#00d9ff] text-lg">{selectedBeacon.gameTemplate}</span>
+                          <span className="text-[#00d9ff] text-lg">{selectedArena.gameTemplate}</span>
                           <Badge className="bg-[#00d9ff]/20 text-[#00d9ff] border-[#00d9ff]/50">
-                            {selectedBeacon.activeGames?.length || 0} {(selectedBeacon.activeGames?.length || 0) === 1 ? 'game' : 'games'}
+                            {selectedArena.activeGames?.length || 0} {(selectedArena.activeGames?.length || 0) === 1 ? 'game' : 'games'}
                           </Badge>
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="text-gray-400 text-sm">Type:</span>
-                          <Badge className={getTemplateTypeColor(selectedBeacon.templateType)}>
+                          <Badge className={getTemplateTypeColor(selectedArena.templateType)}>
                             <div className="flex items-center">
-                              {getTemplateTypeIcon(selectedBeacon.templateType)}
-                              {selectedBeacon.templateType === 'solo' ? 'Solo' : selectedBeacon.templateType === 'versus' ? 'Versus' : selectedBeacon.templateType === 'group' ? 'Group' : 'Unknown'}
+                              {getTemplateTypeIcon(selectedArena.templateType)}
+                              {selectedArena.templateType === 'solo' ? 'Solo' : selectedArena.templateType === 'versus' ? 'Versus' : selectedArena.templateType === 'group' ? 'Group' : 'Unknown'}
                             </div>
                           </Badge>
                         </div>
@@ -1742,11 +1742,11 @@ export function BeaconsPage() {
                     <div>
                       <div className="flex items-center gap-2 mb-4">
                         <Gamepad2 className="h-5 w-5 text-[#ff00ff]" />
-                      <h3 className="text-white">Active Beacon Games ({selectedBeacon.activeGames?.length || 0})</h3>
+                      <h3 className="text-white">Active Arena Games ({selectedArena.activeGames?.length || 0})</h3>
                       </div>
-                    {selectedBeacon.activeGames && selectedBeacon.activeGames.length > 0 ? (
+                    {selectedArena.activeGames && selectedArena.activeGames.length > 0 ? (
                       <div className="space-y-4">
-                        {selectedBeacon.activeGames.map((game, index) => (
+                        {selectedArena.activeGames.map((game, index) => (
                           <Card key={index} className="p-4 bg-gray-950 border-gray-800">
                             <div className="space-y-3">
                               <div className="flex items-center justify-between">
@@ -1785,7 +1785,7 @@ export function BeaconsPage() {
                                 </div>
                                 <div className="flex flex-wrap gap-1">
                                   {game.players?.map((player, playerIndex) => {
-                                    const playerWithDetails = player as BeaconGamePlayerWithDetails;
+                                    const playerWithDetails = player as ArenaGamePlayerWithDetails;
                                     const username = playerWithDetails.player_username || `Player ${playerIndex + 1}`;
                                     
                                     return (
@@ -1835,27 +1835,27 @@ export function BeaconsPage() {
                   </div>
 
                   {/* Warning Message */}
-                  {isAuthenticated && selectedBeacon.activeGames && selectedBeacon.activeGames.length > 0 && (
+                  {isAuthenticated && selectedArena.activeGames && selectedArena.activeGames.length > 0 && (
                     <div className="bg-gray-900 border border-gray-700 text-gray-400 px-4 py-3 rounded-md flex items-center gap-2 mb-4">
                       <AlertTriangle className="h-4 w-4 text-gray-400" />
-                      <span>End all active beacon games before changing template or deactivating.</span>
+                      <span>End all active arena games before changing template or deactivating.</span>
                     </div>
                   )}
 
                   {/* Actions */}
                   <div className="pt-4 border-t border-gray-800 space-y-3">
-                    {selectedBeacon.active ? (
+                    {selectedArena.active ? (
                       <>
                         <Dialog open={isTemplateDialogOpen} onOpenChange={setIsTemplateDialogOpen}>
                           {isAuthenticated && (
                             <DialogTrigger asChild>
                                 <Button 
                                 className="w-full bg-[#00d9ff] hover:bg-[#00d9ff]/90 text-black disabled:bg-gray-600 disabled:cursor-not-allowed"
-                                disabled={selectedBeacon.activeGames && selectedBeacon.activeGames.length > 0}
+                                disabled={selectedArena.activeGames && selectedArena.activeGames.length > 0}
                                 >
                                   <FileCode className="h-4 w-4 mr-2" />
-                                {selectedBeacon.activeGames && selectedBeacon.activeGames.length > 0 
-                                  ? `Cannot Change Template (${selectedBeacon.activeGames.length} Active Games)`
+                                {selectedArena.activeGames && selectedArena.activeGames.length > 0 
+                                  ? `Cannot Change Template (${selectedArena.activeGames.length} Active Games)`
                                   : 'Change Game Template'
                                 }
                                 </Button>
@@ -1865,7 +1865,7 @@ export function BeaconsPage() {
                             <DialogHeader>
                               <DialogTitle className="text-white text-2xl">Select Game Template</DialogTitle>
                               <DialogDescription className="text-gray-400 text-sm">
-                                Choose a game template for beacon {selectedBeacon.id}
+                                Choose a game template for arena {selectedArena.id}
                               </DialogDescription>
                             </DialogHeader>
                             <div className="space-y-6 mt-6">
@@ -1892,7 +1892,7 @@ export function BeaconsPage() {
                               </div>
                               <div className="flex gap-2">
                                 <Button
-                                  onClick={() => handleAssignTemplate(selectedBeacon.id, parseInt(selectedTemplateId))}
+                                  onClick={() => handleAssignTemplate(selectedArena.id, parseInt(selectedTemplateId))}
                                   disabled={!selectedTemplateId || assigningTemplate}
                                   className="flex-1 bg-[#00d9ff] hover:bg-[#00d9ff]/90 text-black"
                                 >
@@ -1927,24 +1927,24 @@ export function BeaconsPage() {
                         )}
                         {isAuthenticated && (
                           <p className="text-gray-500 text-xs text-center">
-                            Creates a new game session on this beacon
+                            Creates a new game session on this arena
                           </p>
                         )}
                               {isAuthenticated && (
                                 <Button 
                             className="w-full bg-red-500 hover:bg-red-600 text-white disabled:bg-gray-600 disabled:cursor-not-allowed"
-                            onClick={() => handleDeactivateBeacon(selectedBeacon.id)}
-                            disabled={updatingBeacon === selectedBeacon.id || (selectedBeacon.activeGames && selectedBeacon.activeGames.length > 0)}
+                            onClick={() => handleDeactivateArena(selectedArena.id)}
+                            disabled={updatingArena === selectedArena.id || (selectedArena.activeGames && selectedArena.activeGames.length > 0)}
                           >
-                            {updatingBeacon === selectedBeacon.id ? (
+                            {updatingArena === selectedArena.id ? (
                               <>
                                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                                 Deactivating...
                               </>
-                            ) : selectedBeacon.activeGames && selectedBeacon.activeGames.length > 0 ? (
-                              `Cannot Deactivate (${selectedBeacon.activeGames.length} Active Games)`
+                            ) : selectedArena.activeGames && selectedArena.activeGames.length > 0 ? (
+                              `Cannot Deactivate (${selectedArena.activeGames.length} Active Games)`
                             ) : (
-                              'Deactivate Beacon'
+                              'Deactivate Arena'
                             )}
                                 </Button>
                               )}
@@ -1954,10 +1954,10 @@ export function BeaconsPage() {
                         {isAuthenticated && (
                           <Button 
                             className="w-full bg-[#ff00ff] hover:bg-[#ff00ff]/90 text-white"
-                            onClick={() => handleActivateBeacon(selectedBeacon.id)}
-                            disabled={updatingBeacon === selectedBeacon.id}
+                            onClick={() => handleActivateArena(selectedArena.id)}
+                            disabled={updatingArena === selectedArena.id}
                           >
-                            {updatingBeacon === selectedBeacon.id ? (
+                            {updatingArena === selectedArena.id ? (
                               <>
                                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                                 Activating...
@@ -1965,14 +1965,14 @@ export function BeaconsPage() {
                       ) : (
                               <>
                                 <Gamepad2 className="h-4 w-4 mr-2" />
-                          Activate Beacon
+                          Activate Arena
                               </>
                             )}
                         </Button>
                         )}
                         {isAuthenticated && (
                           <p className="text-gray-500 text-xs text-center">
-                            Activate this beacon to enable game sessions
+                            Activate this arena to enable game sessions
                           </p>
                         )}
                       </>
@@ -2089,13 +2089,13 @@ export function BeaconsPage() {
             <div className="space-y-4">
               <div>
                 <p className="text-gray-400 text-sm mb-2">
-                  Start a new game on beacon <span className="text-[#00d9ff]">{selectedBeacon?.id}</span>
+                  Start a new game on arena <span className="text-[#00d9ff]">{selectedArena?.id}</span>
                 </p>
                 <p className="text-gray-400 text-sm">
-                  Template: <span className="text-white">{selectedBeacon?.gameTemplate}</span>
+                  Template: <span className="text-white">{selectedArena?.gameTemplate}</span>
                 </p>
                 <p className="text-gray-400 text-sm">
-                  Type: <span className="text-white">{selectedBeacon?.templateType}</span>
+                  Type: <span className="text-white">{selectedArena?.templateType}</span>
                 </p>
               </div>
               <div className="bg-gray-950 border border-gray-800 rounded-lg p-3">
@@ -2134,27 +2134,27 @@ export function BeaconsPage() {
           </Dialog>
         )}
 
-        {/* Create Beacon Dialog */}
+        {/* Create Arena Dialog */}
         {isAuthenticated && (
-          <Dialog open={isCreateBeaconDialogOpen} onOpenChange={setIsCreateBeaconDialogOpen}>
+          <Dialog open={isCreateArenaDialogOpen} onOpenChange={setIsCreateArenaDialogOpen}>
           <DialogContent className="bg-gray-900 border-gray-800 max-w-2xl">
             <DialogHeader>
-              <DialogTitle className="text-white">Create New Beacon</DialogTitle>
+              <DialogTitle className="text-white">Create New Arena</DialogTitle>
               <DialogDescription className="text-gray-400 text-sm">
-                Create a new beacon location for games
+                Create a new arena location for games
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
-              {/* Beacon Name */}
+              {/* Arena Name */}
               <div>
-                <label className="text-gray-400 text-sm mb-2 block">Beacon Name *</label>
+                <label className="text-gray-400 text-sm mb-2 block">Arena Name *</label>
                 <Input
                   placeholder="e.g., Downtown Plaza"
-                  value={newBeacon.name}
-                  onChange={(e) => setNewBeacon(prev => ({ ...prev, name: e.target.value }))}
+                  value={newArena.name}
+                  onChange={(e) => setNewArena(prev => ({ ...prev, name: e.target.value }))}
                   className="bg-gray-950 border-gray-800 text-white placeholder:text-gray-500"
                 />
-                <p className="text-gray-500 text-xs mt-1">Display name for the beacon</p>
+                <p className="text-gray-500 text-xs mt-1">Display name for the arena</p>
               </div>
 
               {/* Address */}
@@ -2162,11 +2162,11 @@ export function BeaconsPage() {
                 <label className="text-gray-400 text-sm mb-2 block">Address *</label>
                 <Input
                   placeholder="e.g., 123 Main St, City, State"
-                  value={newBeacon.address}
-                  onChange={(e) => setNewBeacon(prev => ({ ...prev, address: e.target.value }))}
+                  value={newArena.address}
+                  onChange={(e) => setNewArena(prev => ({ ...prev, address: e.target.value }))}
                   className="bg-gray-950 border-gray-800 text-white placeholder:text-gray-500"
                 />
-                <p className="text-gray-500 text-xs mt-1">Physical location of the beacon</p>
+                <p className="text-gray-500 text-xs mt-1">Physical location of the arena</p>
               </div>
 
               {/* Active Status */}
@@ -2177,16 +2177,16 @@ export function BeaconsPage() {
                     <input
                       type="checkbox"
                       id="active"
-                      checked={newBeacon.active}
-                      onChange={(e) => setNewBeacon(prev => ({ ...prev, active: e.target.checked }))}
+                      checked={newArena.active}
+                      onChange={(e) => setNewArena(prev => ({ ...prev, active: e.target.checked }))}
                       className="w-5 h-5 text-[#00d9ff] bg-gray-800 border-2 border-gray-600 rounded focus:ring-[#00d9ff] focus:ring-2 focus:ring-offset-0"
                     />
                     <div className="flex flex-col">
                       <label htmlFor="active" className="text-white text-sm cursor-pointer font-medium">
-                        Active Beacon
+                        Active Arena
                       </label>
                       <span className="text-xs text-gray-400 mt-0.5">
-                        {newBeacon.active ? 'Ready for games' : 'Inactive - will need activation'}
+                        {newArena.active ? 'Ready for games' : 'Inactive - will need activation'}
                       </span>
                     </div>
                   </div>
@@ -2197,17 +2197,17 @@ export function BeaconsPage() {
               <div className="flex justify-end gap-3">
                 <Button
                   variant="outline"
-                  onClick={() => setIsCreateBeaconDialogOpen(false)}
+                  onClick={() => setIsCreateArenaDialogOpen(false)}
                   className="border-gray-700 text-gray-400 hover:bg-gray-800 hover:text-white"
                 >
                   Cancel
                 </Button>
                 <Button
-                  onClick={handleCreateBeacon}
-                  disabled={creatingBeacon}
+                  onClick={handleCreateArena}
+                  disabled={creatingArena}
                   className="bg-[#00d9ff] hover:bg-[#00d9ff]/90 text-black"
                 >
-                  {creatingBeacon ? (
+                  {creatingArena ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                       Creating...
@@ -2215,7 +2215,7 @@ export function BeaconsPage() {
                   ) : (
                     <>
                       <Radio className="h-4 w-4 mr-2" />
-                      Create Beacon
+                      Create Arena
                     </>
                   )}
                 </Button>

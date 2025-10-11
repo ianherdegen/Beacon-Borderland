@@ -35,7 +35,7 @@ export const AdminLogin: React.FC = () => {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto mt-8">
+    <div className="w-full max-w-md mx-auto">
       <div className="bg-gray-900 border border-gray-700 rounded-xl shadow-xl overflow-hidden">
         {/* Header Section */}
         <div className="text-center py-8 px-6 bg-gray-800">

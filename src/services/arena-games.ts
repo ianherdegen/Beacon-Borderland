@@ -1,41 +1,41 @@
 import { supabase } from '../lib/supabase';
 import { 
-  BeaconGame, 
-  CreateBeaconGame, 
-  UpdateBeaconGame, 
-  BeaconGameFilters, 
-  BeaconGameWithDetails,
-  BeaconGamePlayer,
-  CreateBeaconGamePlayer,
-  UpdateBeaconGamePlayer,
-  BeaconGamePlayerWithDetails
+  ArenaGame, 
+  CreateArenaGame, 
+  UpdateArenaGame, 
+  ArenaGameFilters, 
+  ArenaGameWithDetails,
+  ArenaGamePlayer,
+  CreateArenaGamePlayer,
+  UpdateArenaGamePlayer,
+  ArenaGamePlayerWithDetails
 } from '../types';
 
-export class BeaconGamesService {
-  // Get all beacon games
-  static async getAll(): Promise<BeaconGame[]> {
+export class ArenaGamesService {
+  // Get all arena games
+  static async getAll(): Promise<ArenaGame[]> {
     const { data, error } = await supabase
-      .from('beacon_games')
+      .from('arena_games')
       .select('*')
       .order('start_time', { ascending: false });
 
     if (error) {
-      console.error('Error fetching beacon games:', error);
+      console.error('Error fetching arena games:', error);
       throw error;
     }
 
     return data || [];
   }
 
-  // Get beacon games with details (beacon name, template info, players)
-  static async getWithDetails(): Promise<BeaconGameWithDetails[]> {
+  // Get arena games with details (arena name, template info, players)
+  static async getWithDetails(): Promise<ArenaGameWithDetails[]> {
     const { data, error } = await supabase
-      .from('beacon_games')
+      .from('arena_games')
       .select(`
         *,
-        beacons!inner(name),
+        arenas!inner(name),
         game_templates!inner(name, type),
-        beacon_game_players(
+        arena_game_players(
           *,
           players!inner(username, avatar)
         )
@@ -43,17 +43,17 @@ export class BeaconGamesService {
       .order('start_time', { ascending: false });
 
     if (error) {
-      console.error('Error fetching beacon games with details:', error);
+      console.error('Error fetching arena games with details:', error);
       throw error;
     }
 
     // Transform the data to match our interface
     return data?.map(game => ({
       ...game,
-      beacon_name: game.beacons.name,
+      arena_name: game.arenas.name,
       game_template_name: game.game_templates.name,
       game_template_type: game.game_templates.type,
-      players: game.beacon_game_players.map((bgp: any) => ({
+      players: game.arena_game_players.map((bgp: any) => ({
         ...bgp,
         player_username: bgp.players.username,
         player_avatar: bgp.players.avatar
@@ -61,31 +61,31 @@ export class BeaconGamesService {
     })) || [];
   }
 
-  // Get a single beacon game by ID
-  static async getById(id: string): Promise<BeaconGame | null> {
+  // Get a single arena game by ID
+  static async getById(id: string): Promise<ArenaGame | null> {
     const { data, error } = await supabase
-      .from('beacon_games')
+      .from('arena_games')
       .select('*')
       .eq('id', id)
       .single();
 
     if (error) {
-      console.error('Error fetching beacon game:', error);
+      console.error('Error fetching arena game:', error);
       throw error;
     }
 
     return data;
   }
 
-  // Get beacon game with details by ID
-  static async getWithDetailsById(id: string): Promise<BeaconGameWithDetails | null> {
+  // Get arena game with details by ID
+  static async getWithDetailsById(id: string): Promise<ArenaGameWithDetails | null> {
     const { data, error } = await supabase
-      .from('beacon_games')
+      .from('arena_games')
       .select(`
         *,
-        beacons!inner(name),
+        arenas!inner(name),
         game_templates!inner(name, type),
-        beacon_game_players(
+        arena_game_players(
           *,
           players!inner(username, avatar)
         )
@@ -94,16 +94,16 @@ export class BeaconGamesService {
       .single();
 
     if (error) {
-      console.error('Error fetching beacon game with details:', error);
+      console.error('Error fetching arena game with details:', error);
       throw error;
     }
 
     return {
       ...data,
-      beacon_name: data.beacons.name,
+      arena_name: data.arenas.name,
       game_template_name: data.game_templates.name,
       game_template_type: data.game_templates.type,
-      players: data.beacon_game_players.map((bgp: any) => ({
+      players: data.arena_game_players.map((bgp: any) => ({
         ...bgp,
         player_username: bgp.players.username,
         player_avatar: bgp.players.avatar
@@ -111,12 +111,12 @@ export class BeaconGamesService {
     };
   }
 
-  // Create a new beacon game
-  static async create(game: CreateBeaconGame): Promise<BeaconGame> {
-    // Generate a unique ID for the beacon game (max 20 characters)
+  // Create a new arena game
+  static async create(game: CreateArenaGame): Promise<ArenaGame> {
+    // Generate a unique ID for the arena game (max 20 characters)
     const timestamp = Date.now().toString().slice(-8); // Last 8 digits of timestamp
     const random = Math.random().toString(36).substr(2, 4).toUpperCase();
-    const gameId = `BG-${timestamp}-${random}`; // Format: BG-12345678-ABCD (19 chars)
+    const gameId = `AG-${timestamp}-${random}`; // Format: AG-12345678-ABCD (19 chars)
     
     const gameWithId = {
       ...game,
@@ -124,73 +124,73 @@ export class BeaconGamesService {
     };
 
     const { data, error } = await supabase
-      .from('beacon_games')
+      .from('arena_games')
       .insert([gameWithId])
       .select()
       .single();
 
     if (error) {
-      console.error('Error creating beacon game:', error);
+      console.error('Error creating arena game:', error);
       throw error;
     }
 
     return data;
   }
 
-  // Update an existing beacon game
-  static async update(id: string, updates: UpdateBeaconGame): Promise<BeaconGame> {
+  // Update an existing arena game
+  static async update(id: string, updates: UpdateArenaGame): Promise<ArenaGame> {
     const { data, error } = await supabase
-      .from('beacon_games')
+      .from('arena_games')
       .update(updates)
       .eq('id', id)
       .select()
       .single();
 
     if (error) {
-      console.error('Error updating beacon game:', error);
+      console.error('Error updating arena game:', error);
       throw error;
     }
 
     return data;
   }
 
-  // Delete a beacon game
+  // Delete a arena game
   static async delete(id: string): Promise<void> {
     const { error } = await supabase
-      .from('beacon_games')
+      .from('arena_games')
       .delete()
       .eq('id', id);
 
     if (error) {
-      console.error('Error deleting beacon game:', error);
+      console.error('Error deleting arena game:', error);
       throw error;
     }
   }
 
-  // Search and filter beacon games
-  static async search(filters: BeaconGameFilters): Promise<BeaconGameWithDetails[]> {
+  // Search and filter arena games
+  static async search(filters: ArenaGameFilters): Promise<ArenaGameWithDetails[]> {
     let queryBuilder = supabase
-      .from('beacon_games')
+      .from('arena_games')
       .select(`
         *,
-        beacons!inner(name),
+        arenas!inner(name),
         game_templates!inner(name, type),
-        beacon_game_players(
+        arena_game_players(
           *,
           players!inner(username, avatar)
         )
       `);
 
     if (filters.search) {
-      queryBuilder = queryBuilder.or(`id.ilike.%${filters.search}%,beacons.name.ilike.%${filters.search}%,game_templates.name.ilike.%${filters.search}%`);
+      queryBuilder = queryBuilder.or(`id.ilike.%${filters.search}%,arenas.name.ilike.%${filters.search}%,game_templates.name.ilike.%${filters.search}%`);
     }
 
     if (filters.status && filters.status !== 'all') {
       queryBuilder = queryBuilder.eq('status', filters.status);
     }
 
-    if (filters.beacon_id) {
-      queryBuilder = queryBuilder.eq('beacon_id', filters.beacon_id);
+    if (filters.arena_id) {
+      queryBuilder = queryBuilder.eq('arena_id', filters.arena_id);
     }
 
     if (filters.game_template_id) {
@@ -200,16 +200,16 @@ export class BeaconGamesService {
     const { data, error } = await queryBuilder.order('start_time', { ascending: false });
 
     if (error) {
-      console.error('Error searching beacon games:', error);
+      console.error('Error searching arena games:', error);
       throw error;
     }
 
     return data?.map(game => ({
       ...game,
-      beacon_name: game.beacons.name,
+      arena_name: game.arenas.name,
       game_template_name: game.game_templates.name,
       game_template_type: game.game_templates.type,
-      players: game.beacon_game_players.map((bgp: any) => ({
+      players: game.arena_game_players.map((bgp: any) => ({
         ...bgp,
         player_username: bgp.players.username,
         player_avatar: bgp.players.avatar
@@ -218,33 +218,33 @@ export class BeaconGamesService {
   }
 
   // Get active games
-  static async getActive(): Promise<BeaconGameWithDetails[]> {
+  static async getActive(): Promise<ArenaGameWithDetails[]> {
     return this.search({ status: 'Active' });
   }
 
   // Get completed games
-  static async getCompleted(): Promise<BeaconGameWithDetails[]> {
+  static async getCompleted(): Promise<ArenaGameWithDetails[]> {
     return this.search({ status: 'Completed' });
   }
 
   // Get cancelled games
-  static async getCancelled(): Promise<BeaconGameWithDetails[]> {
+  static async getCancelled(): Promise<ArenaGameWithDetails[]> {
     return this.search({ status: 'Cancelled' });
   }
 
   // Start a new game (create and add players)
-  static async startGame(beaconId: string, gameTemplateId: number, playerIds: number[]): Promise<BeaconGameWithDetails> {
+  static async startGame(arenaId: string, gameTemplateId: number, playerIds: number[]): Promise<ArenaGameWithDetails> {
     // Create the game
     const game = await this.create({
-      beacon_id: beaconId,
+      arena_id: arenaId,
       game_template_id: gameTemplateId,
       status: 'Active'
     });
 
     // Add players to the game
     for (const playerId of playerIds) {
-      await BeaconGamePlayersService.create({
-        beacon_game_id: game.id,
+      await ArenaGamePlayersService.create({
+        arena_game_id: game.id,
         player_id: playerId
       });
     }
@@ -259,7 +259,7 @@ export class BeaconGamesService {
   }
 
   // End a game
-  static async endGame(id: string, outcome: any, actualClip?: string): Promise<BeaconGame> {
+  static async endGame(id: string, outcome: any, actualClip?: string): Promise<ArenaGame> {
     return this.update(id, {
       status: 'Completed',
       end_time: new Date().toISOString(),
@@ -269,7 +269,7 @@ export class BeaconGamesService {
   }
 
   // Cancel a game
-  static async cancelGame(id: string): Promise<BeaconGame> {
+  static async cancelGame(id: string): Promise<ArenaGame> {
     return this.update(id, {
       status: 'Cancelled',
       end_time: new Date().toISOString()
@@ -280,16 +280,16 @@ export class BeaconGamesService {
 // =====================================================
 // BEACON GAME PLAYERS SERVICE
 // =====================================================
-export class BeaconGamePlayersService {
-  // Get all beacon game players
-  static async getAll(): Promise<BeaconGamePlayer[]> {
+export class ArenaGamePlayersService {
+  // Get all arena game players
+  static async getAll(): Promise<ArenaGamePlayer[]> {
     const { data, error } = await supabase
-      .from('beacon_game_players')
+      .from('arena_game_players')
       .select('*')
       .order('joined_at', { ascending: false });
 
     if (error) {
-      console.error('Error fetching beacon game players:', error);
+      console.error('Error fetching arena game players:', error);
       throw error;
     }
 
@@ -297,14 +297,14 @@ export class BeaconGamePlayersService {
   }
 
   // Get players for a specific game
-  static async getByGameId(gameId: string): Promise<BeaconGamePlayerWithDetails[]> {
+  static async getByGameId(gameId: string): Promise<ArenaGamePlayerWithDetails[]> {
     const { data, error } = await supabase
-      .from('beacon_game_players')
+      .from('arena_game_players')
       .select(`
         *,
         players!inner(username, avatar)
       `)
-      .eq('beacon_game_id', gameId)
+      .eq('arena_game_id', gameId)
       .order('joined_at', { ascending: true });
 
     if (error) {
@@ -319,8 +319,8 @@ export class BeaconGamePlayersService {
     })) || [];
   }
 
-  // Create a new beacon game player
-  static async create(player: CreateBeaconGamePlayer): Promise<BeaconGamePlayer> {
+  // Create a new arena game player
+  static async create(player: CreateArenaGamePlayer): Promise<ArenaGamePlayer> {
     // First, verify that the player is active
     const { data: playerData, error: playerError } = await supabase
       .from('players')
@@ -338,30 +338,30 @@ export class BeaconGamePlayersService {
     }
 
     const { data, error } = await supabase
-      .from('beacon_game_players')
+      .from('arena_game_players')
       .insert([player])
       .select()
       .single();
 
     if (error) {
-      console.error('Error creating beacon game player:', error);
+      console.error('Error creating arena game player:', error);
       throw error;
     }
 
     return data;
   }
 
-  // Update a beacon game player
-  static async update(id: number, updates: UpdateBeaconGamePlayer): Promise<BeaconGamePlayer> {
+  // Update a arena game player
+  static async update(id: number, updates: UpdateArenaGamePlayer): Promise<ArenaGamePlayer> {
     const { data, error } = await supabase
-      .from('beacon_game_players')
+      .from('arena_game_players')
       .update(updates)
       .eq('id', id)
       .select()
       .single();
 
     if (error) {
-      console.error('Error updating beacon game player:', error);
+      console.error('Error updating arena game player:', error);
       throw error;
     }
 
@@ -371,18 +371,18 @@ export class BeaconGamePlayersService {
   // Remove a player from a game
   static async remove(id: number): Promise<void> {
     const { error } = await supabase
-      .from('beacon_game_players')
+      .from('arena_game_players')
       .delete()
       .eq('id', id);
 
     if (error) {
-      console.error('Error removing beacon game player:', error);
+      console.error('Error removing arena game player:', error);
       throw error;
     }
   }
 
   // Set player outcome
-  static async setOutcome(id: number, outcome: 'win' | 'eliminated' | 'forfeit'): Promise<BeaconGamePlayer> {
+  static async setOutcome(id: number, outcome: 'win' | 'eliminated' | 'forfeit'): Promise<ArenaGamePlayer> {
     return this.update(id, {
       player_outcome: outcome
     });

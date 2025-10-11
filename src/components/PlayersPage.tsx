@@ -62,7 +62,7 @@ export function PlayersPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reinstating, setReinstating] = useState(false);
-  const [beaconGamePlayers, setBeaconGamePlayers] = useState<any[]>([]);
+  const [arenaGamePlayers, setArenaGamePlayers] = useState<any[]>([]);
   const [isCreatePlayerDialogOpen, setIsCreatePlayerDialogOpen] = useState(false);
   const [creatingPlayer, setCreatingPlayer] = useState(false);
   const [newPlayer, setNewPlayer] = useState({
@@ -83,7 +83,7 @@ export function PlayersPage() {
     gameId: string;
     endTime: string;
     status: string;
-    beaconId: string;
+    arenaId: string;
     gameTemplateName: string;
   } | null>(null);
   const [loadingLastGame, setLoadingLastGame] = useState(false);
@@ -92,7 +92,7 @@ export function PlayersPage() {
     endTime: string | null;
     startTime: string;
     status: string;
-    beaconId: string;
+    arenaId: string;
     gameTemplateName: string;
     playerOutcome: string | null;
   }>>([]);
@@ -255,26 +255,40 @@ export function PlayersPage() {
     setEditingPlayer(null);
   };
 
-  // Fetch players data and beacon game players data
+  // Fetch players data and arena game players data
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
         setError(null);
         
-        // Fetch beacon game players data
-        const { data: beaconGamePlayersData, error: beaconGamePlayersError } = await supabase
-          .from('beacon_game_players')
+        // Fetch arena game players data
+        const { data: arenaGamePlayersData, error: arenaGamePlayersError } = await supabase
+          .from('arena_game_players')
           .select('player_id, player_outcome');
         
-        if (beaconGamePlayersError) {
-          console.error('Error fetching beacon game players:', beaconGamePlayersError);
-          throw beaconGamePlayersError;
+        if (arenaGamePlayersError) {
+          console.error('Error fetching arena game players:', arenaGamePlayersError);
+          throw arenaGamePlayersError;
         }
         
         const data = await PlayersService.getAll();
         setPlayers(data);
-        setBeaconGamePlayers(beaconGamePlayersData || []);
+        setArenaGamePlayers(arenaGamePlayersData || []);
+        
+        // Automatically check for forfeits when page loads
+        try {
+          const result = await PlayersService.checkAndUpdateForfeitStatus();
+          if (result.updated > 0) {
+            toast.success(`${result.updated} player(s) automatically set to Forfeit due to inactivity`);
+            // Refresh the players list after forfeit check
+            const updatedData = await PlayersService.getAll();
+            setPlayers(updatedData);
+          }
+        } catch (forfeitError) {
+          console.error('Error in automatic forfeit check:', forfeitError);
+          // Don't show error toast for automatic check, just log it
+        }
       } catch (err) {
         console.error('Error fetching data:', err);
         setError('Failed to load data. Please try again.');
@@ -286,14 +300,63 @@ export function PlayersPage() {
     fetchData();
   }, []);
 
-  // Update countdown timer every second
+  // Update countdown timer every second and refresh players data periodically
   useEffect(() => {
     const interval = setInterval(() => {
       setCountdownTime(new Date());
     }, 1000); // Update every second
 
-    return () => clearInterval(interval);
+    // Refresh players data every 60 seconds to catch background forfeit updates
+    const refreshInterval = setInterval(async () => {
+      try {
+        const data = await PlayersService.getAll();
+        setPlayers(data);
+      } catch (error) {
+        console.error('Error refreshing players data:', error);
+      }
+    }, 60000); // Refresh every 60 seconds
+
+    return () => {
+      clearInterval(interval);
+      clearInterval(refreshInterval);
+    };
   }, []);
+
+  // Check for expired players and refresh data when they hit 3 days
+  useEffect(() => {
+    const checkForExpiredPlayers = () => {
+      const now = new Date();
+      let hasExpiredPlayer = false;
+
+      players.forEach(player => {
+        if (player.status === 'Active' && player.last_game_at) {
+          const lastGameDate = new Date(player.last_game_at);
+          const daysSinceLastGame = (now.getTime() - lastGameDate.getTime()) / (1000 * 60 * 60 * 24);
+          
+          if (daysSinceLastGame >= 3) {
+            hasExpiredPlayer = true;
+          }
+        }
+      });
+
+      // If we detect an expired player, refresh the data immediately
+      if (hasExpiredPlayer) {
+        console.log('🔄 Detected expired player, refreshing data...');
+        PlayersService.getAll().then(data => {
+          setPlayers(data);
+        }).catch(error => {
+          console.error('Error refreshing expired player data:', error);
+        });
+      }
+    };
+
+    // Check every 10 seconds for expired players
+    const expiredCheckInterval = setInterval(checkForExpiredPlayers, 10000);
+
+    return () => {
+      clearInterval(expiredCheckInterval);
+    };
+  }, [players]);
 
   const filteredPlayers = players.filter((player) => {
     const matchesStatus = filterStatus === 'all' || player.status === filterStatus;
@@ -301,16 +364,16 @@ export function PlayersPage() {
     return matchesStatus && matchesSearch;
   });
 
-  // Calculate player wins from beacon_game_players
+  // Calculate player wins from arena_game_players
   const calculatePlayerWins = (playerId: number) => {
-    return beaconGamePlayers.filter(
+    return arenaGamePlayers.filter(
       bgp => bgp.player_id === playerId && bgp.player_outcome === 'win'
     ).length;
   };
 
-  // Calculate player total games from beacon_game_players
+  // Calculate player total games from arena_game_players
   const calculatePlayerTotalGames = (playerId: number) => {
-    return beaconGamePlayers.filter(
+    return arenaGamePlayers.filter(
       bgp => bgp.player_id === playerId
     ).length;
   };
@@ -329,14 +392,14 @@ export function PlayersPage() {
       setPlayers(prevPlayers => 
         prevPlayers.map(player => 
           player.id === playerId 
-            ? { ...player, status: 'Active' as const }
+            ? { ...player, status: 'Active' as const, last_game_at: null }
             : player
         )
       );
       
       // Update the selected player if it's the one being reinstated
       if (selectedPlayer && selectedPlayer.id === playerId) {
-        setSelectedPlayer(prev => prev ? { ...prev, status: 'Active' as const } : null);
+        setSelectedPlayer(prev => prev ? { ...prev, status: 'Active' as const, last_game_at: null } : null);
       }
       
     } catch (err: any) {
@@ -630,7 +693,7 @@ export function PlayersPage() {
                             <Clock className="h-6 w-6 text-gray-500" />
                           </div>
                           <p className="text-gray-500 text-sm">No games played yet</p>
-                          <p className="text-gray-600 text-xs mt-1">This player hasn't joined any games</p>
+                          <p className="text-gray-500 text-xs mt-1">This player hasn't joined any games</p>
                         </div>
                       )}
                     </Card>
@@ -715,7 +778,7 @@ export function PlayersPage() {
                             <Clock className="h-6 w-6 text-gray-500" />
                           </div>
                           <p className="text-gray-500 text-sm">No games played yet</p>
-                          <p className="text-gray-600 text-xs mt-1">This player hasn't joined any games</p>
+                          <p className="text-gray-500 text-xs mt-1">This player hasn't joined any games</p>
                         </div>
                       </Card>
                     )}

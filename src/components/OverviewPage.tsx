@@ -6,8 +6,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { Badge } from './ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 import { PlayersService } from '../services/players';
-import { BeaconsService } from '../services/beacons';
-import { BeaconGamesService } from '../services/beacon-games';
+import { ArenasService } from '../services/arenas';
+import { ArenaGamesService } from '../services/arena-games';
 import { Player } from '../types';
 import { supabase } from '../lib/supabase';
 
@@ -18,9 +18,9 @@ interface OverviewPageProps {
 
 export function OverviewPage({ onNavigate }: OverviewPageProps) {
   const [players, setPlayers] = useState<Player[]>([]);
-  const [beacons, setBeacons] = useState<any[]>([]);
+  const [arenas, setArenas] = useState<any[]>([]);
   const [activeGames, setActiveGames] = useState<any[]>([]);
-  const [beaconGamePlayers, setBeaconGamePlayers] = useState<any[]>([]);
+  const [arenaGamePlayers, setArenaGamePlayers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -33,31 +33,31 @@ export function OverviewPage({ onNavigate }: OverviewPageProps) {
         
         console.log('Fetching overview data...');
         
-        // Fetch beacon game players data
-        const { data: beaconGamePlayersData, error: beaconGamePlayersError } = await supabase
-          .from('beacon_game_players')
+        // Fetch arena game players data
+        const { data: arenaGamePlayersData, error: arenaGamePlayersError } = await supabase
+          .from('arena_game_players')
           .select('player_id, player_outcome');
         
-        if (beaconGamePlayersError) {
-          console.error('Error fetching beacon game players:', beaconGamePlayersError);
-          throw beaconGamePlayersError;
+        if (arenaGamePlayersError) {
+          console.error('Error fetching arena game players:', arenaGamePlayersError);
+          throw arenaGamePlayersError;
         }
         
-        const [playersData, beaconsData, activeGamesData] = await Promise.all([
+        const [playersData, arenasData, activeGamesData] = await Promise.all([
           PlayersService.getAll(),
-          BeaconsService.getAll(),
-          BeaconGamesService.getWithDetails()
+          ArenasService.getAll(),
+          ArenaGamesService.getWithDetails()
         ]);
         
         console.log('Fetched players:', playersData);
-        console.log('Fetched beacons:', beaconsData);
+        console.log('Fetched arenas:', arenasData);
         console.log('Fetched active games:', activeGamesData);
-        console.log('Fetched beacon game players:', beaconGamePlayersData);
+        console.log('Fetched arena game players:', arenaGamePlayersData);
         
         setPlayers(playersData);
-        setBeacons(beaconsData);
+        setArenas(arenasData);
         setActiveGames(activeGamesData);
-        setBeaconGamePlayers(beaconGamePlayersData || []);
+        setArenaGamePlayers(arenaGamePlayersData || []);
         
       } catch (err: any) {
         console.error('Error fetching overview data:', err);
@@ -75,20 +75,20 @@ export function OverviewPage({ onNavigate }: OverviewPageProps) {
   const activePlayers = players.filter(p => p.status === 'Active').length;
   const eliminatedPlayers = players.filter(p => p.status === 'Eliminated' || p.status === 'Forfeit').length;
 
-  // Calculate beacon and game statistics
-  const activeBeacons = beacons.filter(b => b.active).length;
+  // Calculate arena and game statistics
+  const activeArenas = arenas.filter(b => b.active).length;
   const totalActiveGames = activeGames.filter(g => g.status === 'Active').length;
 
-  // Calculate player wins from beacon_game_players
+  // Calculate player wins from arena_game_players
   const calculatePlayerWins = (playerId: number) => {
-    return beaconGamePlayers.filter(
+    return arenaGamePlayers.filter(
       bgp => bgp.player_id === playerId && bgp.player_outcome === 'win'
     ).length;
   };
 
-  // Calculate player total games from beacon_game_players
+  // Calculate player total games from arena_game_players
   const calculatePlayerTotalGames = (playerId: number) => {
-    return beaconGamePlayers.filter(
+    return arenaGamePlayers.filter(
       bgp => bgp.player_id === playerId
     ).length;
   };
@@ -110,7 +110,7 @@ export function OverviewPage({ onNavigate }: OverviewPageProps) {
     { label: 'Total Players', value: totalPlayers.toString(), icon: Users, color: 'blue', change: 'Real data' },
     { label: 'Active Players', value: activePlayers.toString(), icon: UserCheck, color: 'blue', change: totalPlayers > 0 ? `${Math.round((activePlayers / totalPlayers) * 100)}% of total` : '0%' },
     { label: 'Eliminated Players', value: eliminatedPlayers.toString(), icon: UserX, color: 'magenta', change: totalPlayers > 0 ? `${Math.round((eliminatedPlayers / totalPlayers) * 100)}% of total` : '0%' },
-    { label: 'Active Beacons', value: activeBeacons.toString(), icon: Radio, color: 'blue', change: beacons.length > 0 ? `${Math.round((activeBeacons / beacons.length) * 100)}% of total` : '0%' },
+    { label: 'Active Arenas', value: activeArenas.toString(), icon: Radio, color: 'blue', change: arenas.length > 0 ? `${Math.round((activeArenas / arenas.length) * 100)}% of total` : '0%' },
     { label: 'Active Games', value: totalActiveGames.toString(), icon: Gamepad2, color: 'magenta', change: 'Currently running' },
   ];
 
@@ -230,45 +230,45 @@ export function OverviewPage({ onNavigate }: OverviewPageProps) {
             </Table>
           </Card>
 
-          {/* Active Beacons */}
+          {/* Active Arenas */}
           <Card className="p-6 bg-gray-900 border-gray-800">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <Radio className="h-5 w-5 text-[#ff00ff]" />
-                <h3 className="text-white">Active Beacons</h3>
+                <h3 className="text-white">Active Arenas</h3>
               </div>
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => onNavigate?.('beacons')}
+                onClick={() => onNavigate?.('arenas')}
                 className="text-[#00d9ff] hover:text-[#00d9ff]/80 hover:bg-[#00d9ff]/10 text-xs"
               >
                 See All
               </Button>
             </div>
             <div className="space-y-3">
-              {beacons
-                .filter(beacon => beacon.active)
+              {arenas
+                .filter(arena => arena.active)
                 .slice(0, 3)
-                .map((beacon) => (
-                  <div key={beacon.id} className="flex items-center justify-between p-3 bg-gray-950/50 rounded-lg border border-gray-800">
+                .map((arena) => (
+                  <div key={arena.id} className="flex items-center justify-between p-3 bg-gray-950/50 rounded-lg border border-gray-800">
                     <div className="flex items-center gap-3">
                       <div className="w-3 h-3 rounded-full bg-[#00d9ff]" style={{ boxShadow: '0 0 10px rgba(0, 217, 255, 0.8)' }} />
                       <div>
-                        <p className="text-white text-sm font-medium">{beacon.name}</p>
-                        <p className="text-gray-400 text-xs">{beacon.id}</p>
+                        <p className="text-white text-sm font-medium">{arena.name}</p>
+                        <p className="text-gray-400 text-xs">{arena.id}</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-gray-400 text-xs">{beacon.address || 'No address'}</p>
+                      <p className="text-gray-400 text-xs">{arena.address || 'No address'}</p>
                     </div>
                   </div>
                 ))}
-              {beacons.filter(beacon => beacon.active).length === 0 && (
+              {arenas.filter(arena => arena.active).length === 0 && (
                 <div className="text-center py-8">
                   <div className="text-gray-400 mb-2">📡</div>
-                  <p className="text-gray-400 text-sm">No active beacons</p>
-                  <p className="text-gray-500 text-xs mt-1">Activate beacons to see them here</p>
+                  <p className="text-gray-400 text-sm">No active arenas</p>
+                  <p className="text-gray-500 text-xs mt-1">Activate arenas to see them here</p>
                 </div>
               )}
             </div>

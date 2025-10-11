@@ -69,7 +69,7 @@ export interface PlayerStats extends Player {
 // =====================================================
 // 3. BEACONS
 // =====================================================
-export interface Beacon {
+export interface Arena {
   id: string;
   name: string;
   address: string | null;
@@ -79,7 +79,7 @@ export interface Beacon {
   updated_at: string;
 }
 
-export interface CreateBeacon {
+export interface CreateArena {
   id?: string;
   name: string;
   address: string;
@@ -87,14 +87,14 @@ export interface CreateBeacon {
   game_template_id?: number;
 }
 
-export interface UpdateBeacon {
+export interface UpdateArena {
   name?: string;
   address?: string;
   active?: boolean;
   game_template_id?: number | null;
 }
 
-export interface BeaconDetails extends Beacon {
+export interface ArenaDetails extends Arena {
   active_games_count: number;
 }
 
@@ -107,9 +107,9 @@ export interface GameOutcome {
   eliminated?: string[];
 }
 
-export interface BeaconGame {
+export interface ArenaGame {
   id: string;
-  beacon_id: string;
+  arena_id: string;
   game_template_id: number;
   status: 'Active' | 'Completed' | 'Cancelled';
   start_time: string;
@@ -120,48 +120,48 @@ export interface BeaconGame {
   updated_at: string;
 }
 
-export interface CreateBeaconGame {
-  beacon_id: string;
+export interface CreateArenaGame {
+  arena_id: string;
   game_template_id: number;
   status?: 'Active' | 'Completed' | 'Cancelled';
 }
 
-export interface UpdateBeaconGame {
+export interface UpdateArenaGame {
   status?: 'Active' | 'Completed' | 'Cancelled';
   end_time?: string;
   outcome?: GameOutcome;
   actual_clip?: string;
 }
 
-export interface BeaconGameWithDetails extends BeaconGame {
-  beacon_name: string;
+export interface ArenaGameWithDetails extends ArenaGame {
+  arena_name: string;
   game_template_name: string;
   game_template_type: string;
-  players: BeaconGamePlayer[];
+  players: ArenaGamePlayer[];
 }
 
 // =====================================================
 // 5. BEACON GAME PLAYERS
 // =====================================================
-export interface BeaconGamePlayer {
+export interface ArenaGamePlayer {
   id: number;
-  beacon_game_id: string;
+  arena_game_id: string;
   player_id: number;
   player_outcome: 'win' | 'eliminated' | 'forfeit' | null;
   joined_at: string;
 }
 
-export interface CreateBeaconGamePlayer {
-  beacon_game_id: string;
+export interface CreateArenaGamePlayer {
+  arena_game_id: string;
   player_id: number;
   player_outcome?: 'win' | 'eliminated' | 'forfeit';
 }
 
-export interface UpdateBeaconGamePlayer {
+export interface UpdateArenaGamePlayer {
   player_outcome?: 'win' | 'eliminated' | 'forfeit';
 }
 
-export interface BeaconGamePlayerWithDetails extends BeaconGamePlayer {
+export interface ArenaGamePlayerWithDetails extends ArenaGamePlayer {
   player_username: string;
   player_avatar: string | null;
 }
@@ -196,14 +196,14 @@ export interface PlayerFilters {
   search?: string;
 }
 
-export interface BeaconFilters {
+export interface ArenaFilters {
   active?: boolean;
   search?: string;
 }
 
-export interface BeaconGameFilters {
+export interface ArenaGameFilters {
   status?: 'Active' | 'Completed' | 'Cancelled' | 'all';
-  beacon_id?: string;
+  arena_id?: string;
   game_template_id?: number;
   search?: string;
 }
@@ -215,13 +215,13 @@ export interface BeaconGameFilters {
 export interface DashboardStats {
   total_players: number;
   active_players: number;
-  total_beacons: number;
-  active_beacons: number;
+  total_arenas: number;
+  active_arenas: number;
   total_games: number;
   active_games: number;
   total_templates: number;
   recent_activity: {
-    recent_games: BeaconGameWithDetails[];
+    recent_games: ArenaGameWithDetails[];
     top_players: PlayerStats[];
     popular_templates: GameTemplate[];
   };
@@ -247,7 +247,7 @@ export interface PlayerForm {
   bio: string;
 }
 
-export interface BeaconForm {
+export interface ArenaForm {
   id: string;
   name: string;
   address: string;

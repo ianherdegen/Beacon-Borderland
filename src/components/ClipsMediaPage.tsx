@@ -10,8 +10,8 @@ import { Label } from './ui/label';
 import { toast } from 'sonner';
 import { GameTemplatesService } from '../services/game-templates';
 import { useAuth } from '../contexts/AuthContext';
-import { BeaconGamesService } from '../services/beacon-games';
-import { GameTemplate, BeaconGameWithDetails } from '../types';
+import { ArenaGamesService } from '../services/arena-games';
+import { GameTemplate, ArenaGameWithDetails } from '../types';
 
 // Helper function to determine video source from URL
 const getVideoSource = (url: string): string => {
@@ -81,18 +81,18 @@ export function ClipsMediaPage() {
             uploadDate: formatDate(template.created_date),
           }));
 
-        // Fetch beacon games with actual clips
-        const beaconGames = await BeaconGamesService.getWithDetails();
-        const matchFootageData = beaconGames
+        // Fetch arena games with actual clips
+        const arenaGames = await ArenaGamesService.getWithDetails();
+        const matchFootageData = arenaGames
           .filter(game => game.actual_clip) // Only show games that have actual clips
           .map(game => ({
             id: game.id,
-            title: `${game.game_template_name} at ${game.beacon_name}`,
+            title: `${game.game_template_name} at ${game.arena_name}`,
             thumbnail: 'https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=400', // Default thumbnail
             source: getVideoSource(game.actual_clip!),
             url: game.actual_clip!,
-            relatedEntity: `${game.id} Beacon Game`,
-            entityType: 'Beacon Game',
+            relatedEntity: `${game.id} Arena Game`,
+            entityType: 'Arena Game',
             duration: 'N/A', // Duration not stored in database
             uploadDate: formatDate(game.start_time),
             winner: game.outcome?.winners?.[0] || 'N/A', // Get first winner if available
@@ -152,9 +152,9 @@ export function ClipsMediaPage() {
               : clip
           )
         );
-      } else if (selectedClip.entityType === 'Beacon Game') {
-        // Update beacon game actual clip
-        await BeaconGamesService.update(selectedClip.id, {
+      } else if (selectedClip.entityType === 'Arena Game') {
+        // Update arena game actual clip
+        await ArenaGamesService.update(selectedClip.id, {
           actual_clip: editForm.url.trim()
         });
 

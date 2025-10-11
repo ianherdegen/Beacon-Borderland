@@ -5,8 +5,8 @@
 // Export all services
 export { GameTemplatesService } from './game-templates';
 export { PlayersService } from './players';
-export { BeaconsService } from './beacons';
-export { BeaconGamesService, BeaconGamePlayersService } from './beacon-games';
+export { ArenasService } from './arenas';
+export { ArenaGamesService, ArenaGamePlayersService } from './arena-games';
 export { DashboardService } from './dashboard';
 
 // Re-export types for convenience

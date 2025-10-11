@@ -1,6 +1,6 @@
 import { supabase } from '../lib/supabase';
-import { DashboardStats, BeaconGameWithDetails, PlayerStats, GameTemplate } from '../types';
-import { BeaconGamesService } from './beacon-games';
+import { DashboardStats, ArenaGameWithDetails, PlayerStats, GameTemplate } from '../types';
+import { ArenaGamesService } from './arena-games';
 import { PlayersService } from './players';
 import { GameTemplatesService } from './game-templates';
 
@@ -12,16 +12,16 @@ export class DashboardService {
       const [
         playersCount,
         activePlayersCount,
-        beaconsCount,
-        activeBeaconsCount,
+        arenasCount,
+        activeArenasCount,
         gamesCount,
         activeGamesCount,
         templatesCount
       ] = await Promise.all([
         this.getTotalPlayers(),
         this.getActivePlayersCount(),
-        this.getTotalBeacons(),
-        this.getActiveBeaconsCount(),
+        this.getTotalArenas(),
+        this.getActiveArenasCount(),
         this.getTotalGames(),
         this.getActiveGamesCount(),
         this.getTotalTemplates()
@@ -33,8 +33,8 @@ export class DashboardService {
       return {
         total_players: playersCount,
         active_players: activePlayersCount,
-        total_beacons: beaconsCount,
-        active_beacons: activeBeaconsCount,
+        total_arenas: arenasCount,
+        active_arenas: activeArenasCount,
         total_games: gamesCount,
         active_games: activeGamesCount,
         total_templates: templatesCount,
@@ -75,29 +75,29 @@ export class DashboardService {
     return count || 0;
   }
 
-  // Get total beacons count
-  private static async getTotalBeacons(): Promise<number> {
+  // Get total arenas count
+  private static async getTotalArenas(): Promise<number> {
     const { count, error } = await supabase
-      .from('beacons')
+      .from('arenas')
       .select('*', { count: 'exact', head: true });
 
     if (error) {
-      console.error('Error fetching total beacons count:', error);
+      console.error('Error fetching total arenas count:', error);
       throw error;
     }
 
     return count || 0;
   }
 
-  // Get active beacons count
-  private static async getActiveBeaconsCount(): Promise<number> {
+  // Get active arenas count
+  private static async getActiveArenasCount(): Promise<number> {
     const { count, error } = await supabase
-      .from('beacons')
+      .from('arenas')
       .select('*', { count: 'exact', head: true })
       .eq('active', true);
 
     if (error) {
-      console.error('Error fetching active beacons count:', error);
+      console.error('Error fetching active arenas count:', error);
       throw error;
     }
 
@@ -107,7 +107,7 @@ export class DashboardService {
   // Get total games count
   private static async getTotalGames(): Promise<number> {
     const { count, error } = await supabase
-      .from('beacon_games')
+      .from('arena_games')
       .select('*', { count: 'exact', head: true });
 
     if (error) {
@@ -121,7 +121,7 @@ export class DashboardService {
   // Get active games count
   private static async getActiveGamesCount(): Promise<number> {
     const { count, error } = await supabase
-      .from('beacon_games')
+      .from('arena_games')
       .select('*', { count: 'exact', head: true })
       .eq('status', 'Active');
 
@@ -149,7 +149,7 @@ export class DashboardService {
 
   // Get recent activity data
   private static async getRecentActivity(): Promise<{
-    recent_games: BeaconGameWithDetails[];
+    recent_games: ArenaGameWithDetails[];
     top_players: PlayerStats[];
     popular_templates: GameTemplate[];
   }> {
@@ -172,9 +172,9 @@ export class DashboardService {
   }
 
   // Get recent games (last 10)
-  private static async getRecentGames(): Promise<BeaconGameWithDetails[]> {
+  private static async getRecentGames(): Promise<ArenaGameWithDetails[]> {
     try {
-      return await BeaconGamesService.getWithDetails();
+      return await ArenaGamesService.getWithDetails();
     } catch (error) {
       console.error('Error fetching recent games:', error);
       return [];
@@ -220,7 +220,7 @@ export class DashboardService {
   }> {
     try {
       const { data, error } = await supabase
-        .from('beacon_games')
+        .from('arena_games')
         .select('status');
 
       if (error) {
@@ -276,17 +276,17 @@ export class DashboardService {
     }
   }
 
-  // Get beacon activity
-  static async getBeaconActivity(): Promise<{
+  // Get arena activity
+  static async getArenaActivity(): Promise<{
     active: number;
     inactive: number;
     with_games: number;
   }> {
     try {
       const [activeCount, inactiveCount, withGamesCount] = await Promise.all([
-        this.getActiveBeaconsCount(),
-        this.getInactiveBeaconsCount(),
-        this.getBeaconsWithGamesCount()
+        this.getActiveArenasCount(),
+        this.getInactiveArenasCount(),
+        this.getArenasWithGamesCount()
       ]);
 
       return {
@@ -295,35 +295,35 @@ export class DashboardService {
         with_games: withGamesCount
       };
     } catch (error) {
-      console.error('Error fetching beacon activity:', error);
+      console.error('Error fetching arena activity:', error);
       throw error;
     }
   }
 
-  // Get inactive beacons count
-  private static async getInactiveBeaconsCount(): Promise<number> {
+  // Get inactive arenas count
+  private static async getInactiveArenasCount(): Promise<number> {
     const { count, error } = await supabase
-      .from('beacons')
+      .from('arenas')
       .select('*', { count: 'exact', head: true })
       .eq('active', false);
 
     if (error) {
-      console.error('Error fetching inactive beacons count:', error);
+      console.error('Error fetching inactive arenas count:', error);
       throw error;
     }
 
     return count || 0;
   }
 
-  // Get beacons with active games count
-  private static async getBeaconsWithGamesCount(): Promise<number> {
+  // Get arenas with active games count
+  private static async getArenasWithGamesCount(): Promise<number> {
     const { data, error } = await supabase
-      .from('beacon_details')
+      .from('arena_details')
       .select('active_games_count')
       .gt('active_games_count', 0);
 
     if (error) {
-      console.error('Error fetching beacons with games count:', error);
+      console.error('Error fetching arenas with games count:', error);
       throw error;
     }
 
@@ -342,7 +342,7 @@ export class DashboardService {
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
       const { data, error } = await supabase
-        .from('beacon_games')
+        .from('arena_games')
         .select('start_time, end_time, status')
         .gte('start_time', sevenDaysAgo.toISOString());
 

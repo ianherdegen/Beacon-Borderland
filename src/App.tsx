@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   LayoutDashboard,
   Users,
@@ -27,19 +27,20 @@ import { Button } from './components/ui/button';
 import { Toaster } from './components/ui/sonner';
 import { OverviewPage } from './components/OverviewPage';
 import { PlayersPage } from './components/PlayersPage';
-import { BeaconsPage } from './components/BeaconsPage';
+import { ArenasPage } from './components/ArenasPage';
 import { GameTemplatesPage } from './components/GameTemplatesPage';
-import { BeaconGamesPage } from './components/BeaconGamesPage';
+import { ArenaGamesPage } from './components/ArenaGamesPage';
 import { ClipsMediaPage } from './components/ClipsMediaPage';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { AdminLogin } from './components/AdminLogin';
+import BackgroundForfeitService from './services/background-forfeit';
 
 const menuItems = [
   { icon: LayoutDashboard, label: 'Overview', id: 'overview' },
   { icon: Users, label: 'Players', id: 'players' },
-  { icon: Radio, label: 'Beacons', id: 'beacons' },
+  { icon: Radio, label: 'Arenas', id: 'arenas' },
   { icon: FileCode, label: 'Game Templates', id: 'templates' },
-  { icon: Gamepad2, label: 'Beacon Games', id: 'games' },
+  { icon: Gamepad2, label: 'Arena Games', id: 'games' },
   { icon: Film, label: 'Clips & Media', id: 'media' },
 ];
 
@@ -119,18 +120,28 @@ function AppContent() {
   const { isAuthenticated, showLogin, setShowLogin } = useAuth();
   const [activeItem, setActiveItem] = useState('overview');
 
+  // Start background forfeit service when app loads
+  useEffect(() => {
+    BackgroundForfeitService.start();
+    
+    // Cleanup when app unmounts
+    return () => {
+      BackgroundForfeitService.stop();
+    };
+  }, []);
+
   const renderPage = () => {
     switch (activeItem) {
       case 'overview':
         return <OverviewPage onNavigate={setActiveItem} />;
       case 'players':
         return <PlayersPage />;
-      case 'beacons':
-        return <BeaconsPage />;
+      case 'arenas':
+        return <ArenasPage />;
       case 'templates':
         return <GameTemplatesPage />;
       case 'games':
-        return <BeaconGamesPage />;
+        return <ArenaGamesPage />;
       case 'media':
         return <ClipsMediaPage />;
       default:

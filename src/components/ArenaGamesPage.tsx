@@ -12,22 +12,22 @@ import { Separator } from './ui/separator';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from './ui/dialog';
 import { Label } from './ui/label';
 import { toast } from 'sonner';
-import { BeaconGamesService } from '../services/beacon-games';
-import { BeaconGameWithDetails, BeaconGamePlayerWithDetails } from '../types';
+import { ArenaGamesService } from '../services/arena-games';
+import { ArenaGameWithDetails, ArenaGamePlayerWithDetails } from '../types';
 
 type GameType = 'Solo' | 'Versus' | 'Group';
 
-// UI-friendly interface for displaying beacon games
-interface BeaconGameDisplay {
+// UI-friendly interface for displaying arena games
+interface ArenaGameDisplay {
   id: string;
-  beaconId: string;
-  beaconName: string;
+  arenaId: string;
+  arenaName: string;
   gameTemplate: string;
   templateType: GameType;
   status: 'Active' | 'Completed' | 'Cancelled';
   playersCount: number;
   players: string[];
-  originalPlayers: BeaconGamePlayerWithDetails[]; // Store original player data for outcome display
+  originalPlayers: ArenaGamePlayerWithDetails[]; // Store original player data for outcome display
   actualClip: string | null;
   startTime: string;
   endTime: string | null;
@@ -35,16 +35,16 @@ interface BeaconGameDisplay {
   duration: string;
 }
 
-export function BeaconGamesPage() {
+export function ArenaGamesPage() {
   const { isAuthenticated } = useAuth();
-  const [beaconGames, setBeaconGames] = useState<BeaconGameDisplay[]>([]);
-  const [selectedGame, setSelectedGame] = useState<BeaconGameDisplay | null>(null);
+  const [arenaGames, setArenaGames] = useState<ArenaGameDisplay[]>([]);
+  const [selectedGame, setSelectedGame] = useState<ArenaGameDisplay | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isEditVideoDialogOpen, setIsEditVideoDialogOpen] = useState(false);
-  const [editingGame, setEditingGame] = useState<BeaconGameDisplay | null>(null);
+  const [editingGame, setEditingGame] = useState<ArenaGameDisplay | null>(null);
   const [videoUrl, setVideoUrl] = useState('');
   const [savingVideo, setSavingVideo] = useState(false);
 
@@ -62,19 +62,19 @@ export function BeaconGamesPage() {
     return url;
   };
 
-  // Fetch beacon games data
+  // Fetch arena games data
   useEffect(() => {
-    const fetchBeaconGames = async () => {
+    const fetchArenaGames = async () => {
       try {
         setLoading(true);
         setError(null);
         
-        console.log('Fetching beacon games with details...');
-        const gamesWithDetails = await BeaconGamesService.getWithDetails();
-        console.log('Fetched beacon games:', gamesWithDetails);
+        console.log('Fetching arena games with details...');
+        const gamesWithDetails = await ArenaGamesService.getWithDetails();
+        console.log('Fetched arena games:', gamesWithDetails);
         
         // Transform the data to match our UI structure
-        const transformedGames: BeaconGameDisplay[] = gamesWithDetails.map(game => {
+        const transformedGames: ArenaGameDisplay[] = gamesWithDetails.map(game => {
           // Calculate duration
           const startTime = new Date(game.start_time);
           const endTime = game.end_time ? new Date(game.end_time) : new Date();
@@ -112,14 +112,14 @@ export function BeaconGamesPage() {
           
           return {
             id: game.id,
-            beaconId: game.beacon_id,
-            beaconName: game.beacon_name,
+            arenaId: game.arena_id,
+            arenaName: game.arena_name,
             gameTemplate: game.game_template_name,
             templateType: game.game_template_type as GameType,
             status: game.status,
             playersCount: game.players.length,
-            players: (game.players as BeaconGamePlayerWithDetails[]).map(p => p.player_username || `Player ${p.player_id}`), // Use actual username
-            originalPlayers: game.players as BeaconGamePlayerWithDetails[], // Store original player data for outcome display
+            players: (game.players as ArenaGamePlayerWithDetails[]).map(p => p.player_username || `Player ${p.player_id}`), // Use actual username
+            originalPlayers: game.players as ArenaGamePlayerWithDetails[], // Store original player data for outcome display
             actualClip: game.actual_clip,
             startTime: formattedStartTime,
             endTime: formattedEndTime,
@@ -128,27 +128,27 @@ export function BeaconGamesPage() {
           };
         });
         
-        setBeaconGames(transformedGames);
-        console.log('Transformed beacon games:', transformedGames);
+        setArenaGames(transformedGames);
+        console.log('Transformed arena games:', transformedGames);
         
       } catch (err: any) {
-        console.error('Error fetching beacon games:', err);
-        setError(err?.message || 'Failed to load beacon games. Please try again.');
+        console.error('Error fetching arena games:', err);
+        setError(err?.message || 'Failed to load arena games. Please try again.');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchBeaconGames();
+    fetchArenaGames();
   }, []);
 
-  const filteredGames = beaconGames.filter((game) => {
+  const filteredGames = arenaGames.filter((game) => {
     const matchesStatus = filterStatus === 'all' || game.status === filterStatus;
     const matchesSearch =
       game.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
       game.gameTemplate.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      game.beaconName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      game.beaconId.toLowerCase().includes(searchQuery.toLowerCase());
+      game.arenaName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      game.arenaId.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesStatus && matchesSearch;
   });
 
@@ -159,7 +159,7 @@ export function BeaconGamesPage() {
     return 'bg-green-500/20 text-green-400 border-green-500/50';
   };
 
-  const renderOutcome = (game: BeaconGameDisplay) => {
+  const renderOutcome = (game: ArenaGameDisplay) => {
     if (!game.outcome) return null;
 
     if (game.templateType === 'Solo') {
@@ -257,7 +257,7 @@ export function BeaconGamesPage() {
   };
 
   // Handle edit video click
-  const handleEditVideo = (game: BeaconGameDisplay) => {
+  const handleEditVideo = (game: ArenaGameDisplay) => {
     setEditingGame(game);
     setVideoUrl(game.actualClip || '');
     setIsEditVideoDialogOpen(true);
@@ -273,12 +273,12 @@ export function BeaconGamesPage() {
     try {
       setSavingVideo(true);
       
-      await BeaconGamesService.update(editingGame.id, {
+      await ArenaGamesService.update(editingGame.id, {
         actual_clip: videoUrl.trim()
       });
 
       // Update local state
-      setBeaconGames(prev => 
+      setArenaGames(prev => 
         prev.map(game => 
           game.id === editingGame.id 
             ? { ...game, actualClip: videoUrl.trim() }
@@ -315,13 +315,13 @@ export function BeaconGamesPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-white mb-2">Beacon Games</h1>
-          <p className="text-gray-400">Monitor all beacon game sessions</p>
+          <h1 className="text-white mb-2">Arena Games</h1>
+          <p className="text-gray-400">Monitor all arena game sessions</p>
         </div>
         <div className="flex items-center justify-center py-12">
           <div className="flex items-center gap-3">
             <Loader2 className="h-6 w-6 animate-spin text-[#00d9ff]" />
-            <span className="text-gray-400">Loading beacon games...</span>
+            <span className="text-gray-400">Loading arena games...</span>
           </div>
         </div>
       </div>
@@ -333,8 +333,8 @@ export function BeaconGamesPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-white mb-2">Beacon Games</h1>
-          <p className="text-gray-400">Monitor all beacon game sessions</p>
+          <h1 className="text-white mb-2">Arena Games</h1>
+          <p className="text-gray-400">Monitor all arena game sessions</p>
         </div>
         <Card className="p-6 bg-gray-900 border-gray-800">
           <div className="text-center">
@@ -354,8 +354,8 @@ export function BeaconGamesPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-white mb-2">Beacon Games</h1>
-        <p className="text-gray-400">Monitor all beacon game sessions</p>
+        <h1 className="text-white mb-2">Arena Games</h1>
+        <p className="text-gray-400">Monitor all arena game sessions</p>
       </div>
 
       {/* Search and Filters */}
@@ -364,7 +364,7 @@ export function BeaconGamesPage() {
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
             <Input
-              placeholder="Search games by ID, template, or beacon..."
+              placeholder="Search games by ID, template, or arena..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 bg-gray-950 border-gray-800 text-white placeholder:text-gray-500"
@@ -426,7 +426,7 @@ export function BeaconGamesPage() {
           <TableHeader>
             <TableRow className="border-gray-800 hover:bg-transparent">
               <TableHead className="text-gray-400">Game ID</TableHead>
-              <TableHead className="text-gray-400">Beacon</TableHead>
+              <TableHead className="text-gray-400">Arena</TableHead>
               <TableHead className="text-gray-400">Game Template</TableHead>
               <TableHead className="text-gray-400">Players</TableHead>
               <TableHead className="text-gray-400">Status</TableHead>
@@ -441,8 +441,8 @@ export function BeaconGamesPage() {
                   <div className="flex items-center gap-2">
                     <Radio className="h-3 w-3 text-gray-500" />
                     <div>
-                      <div className="text-white">{game.beaconName}</div>
-                      <div className="text-gray-500 text-xs">{game.beaconId}</div>
+                      <div className="text-white">{game.arenaName}</div>
+                      <div className="text-gray-500 text-xs">{game.arenaId}</div>
                     </div>
                   </div>
                 </TableCell>
@@ -533,9 +533,9 @@ export function BeaconGamesPage() {
                   <h3 className="text-white mb-4">Game Information</h3>
                   <div className="grid grid-cols-2 gap-3">
                     <Card className="p-4 bg-gray-950 border-gray-800">
-                      <p className="text-gray-400 text-sm mb-1">Beacon</p>
-                      <p className="text-white text-sm">{selectedGame.beaconName}</p>
-                      <p className="text-gray-500 text-xs">{selectedGame.beaconId}</p>
+                      <p className="text-gray-400 text-sm mb-1">Arena</p>
+                      <p className="text-white text-sm">{selectedGame.arenaName}</p>
+                      <p className="text-gray-500 text-xs">{selectedGame.arenaId}</p>
                     </Card>
                     <Card className="p-4 bg-gray-950 border-gray-800">
                       <p className="text-gray-400 text-sm mb-1">Type</p>
@@ -703,8 +703,8 @@ export function BeaconGamesPage() {
             </DialogTitle>
             <p className="text-gray-400 text-sm mt-2">
               {editingGame?.actualClip 
-                ? 'Update the match video URL for this beacon game'
-                : 'Add a match video URL for this beacon game'
+                ? 'Update the match video URL for this arena game'
+                : 'Add a match video URL for this arena game'
               }
             </p>
           </DialogHeader>
@@ -724,8 +724,8 @@ export function BeaconGamesPage() {
                     <span className="text-white ml-2">{editingGame.gameTemplate}</span>
                   </div>
                   <div>
-                    <span className="text-gray-400">Beacon:</span>
-                    <span className="text-white ml-2">{editingGame.beaconName}</span>
+                    <span className="text-gray-400">Arena:</span>
+                    <span className="text-white ml-2">{editingGame.arenaName}</span>
                   </div>
                   <div>
                     <span className="text-gray-400">Status:</span>
