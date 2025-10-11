@@ -35,19 +35,19 @@ export const AdminLogin: React.FC = () => {
   };
 
   return (
-    <Card className="w-full max-w-md mx-4 bg-gray-900/95 border-gray-700 shadow-2xl backdrop-blur-sm">
-        <CardHeader className="text-center pb-6 pt-8 px-8">
+    <Card className="w-full max-w-lg mx-6 bg-gray-900/95 border-gray-700 shadow-2xl backdrop-blur-sm">
+        <CardHeader className="text-center pb-8 pt-10 px-10">
           <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-[#e63946] to-[#d62828] shadow-lg">
             <Lock className="h-8 w-8 text-white" />
           </div>
-          <CardTitle className="text-3xl font-bold text-white mb-2">Admin Access</CardTitle>
-          <CardDescription className="text-gray-300 text-base leading-relaxed">
+          <CardTitle className="text-3xl font-bold text-white mb-3">Admin Access</CardTitle>
+          <CardDescription className="text-gray-300 text-base leading-relaxed px-4">
             Enter the admin password to access management features
           </CardDescription>
         </CardHeader>
-        <CardContent className="px-8 pb-8">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-3">
+        <CardContent className="px-10 pb-10">
+          <form onSubmit={handleSubmit} className="space-y-8">
+            <div className="space-y-4">
               <Label htmlFor="password" className="text-white font-medium text-sm">
                 Password
               </Label>
@@ -58,14 +58,14 @@ export const AdminLogin: React.FC = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter admin password"
-                  className="pr-12 h-12 bg-gray-950/50 border-gray-600 text-white placeholder:text-gray-400 focus:border-[#e63946] focus:ring-[#e63946]/20 transition-all duration-200"
+                  className="pr-12 h-14 bg-gray-950/50 border-gray-600 text-white placeholder:text-gray-400 focus:border-[#e63946] focus:ring-[#e63946]/20 transition-all duration-200 text-base"
                   required
                 />
                 <Button
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="absolute right-1 top-1 h-10 w-10 hover:bg-gray-800/50 rounded-md"
+                  className="absolute right-2 top-2 h-10 w-10 hover:bg-gray-800/50 rounded-md"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
@@ -85,7 +85,7 @@ export const AdminLogin: React.FC = () => {
             
             <Button
               type="submit"
-              className="w-full h-12 bg-gradient-to-r from-[#e63946] to-[#d62828] hover:from-[#d62828] hover:to-[#b91c1c] text-white font-medium text-base shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full h-14 bg-gradient-to-r from-[#e63946] to-[#d62828] hover:from-[#d62828] hover:to-[#b91c1c] text-white font-medium text-base shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={isLoading}
             >
               {isLoading ? (
