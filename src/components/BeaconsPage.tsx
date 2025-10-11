@@ -1797,7 +1797,7 @@ export function BeaconsPage() {
                   </div>
 
                   {/* Warning Message */}
-                  {selectedBeacon.activeGames && selectedBeacon.activeGames.length > 0 && (
+                  {isAuthenticated && selectedBeacon.activeGames && selectedBeacon.activeGames.length > 0 && (
                     <div className="bg-gray-900 border border-gray-700 text-gray-400 px-4 py-3 rounded-md flex items-center gap-2 mb-4">
                       <AlertTriangle className="h-4 w-4 text-gray-400" />
                       <span>End all active beacon games before changing template or deactivating.</span>
@@ -1887,9 +1887,11 @@ export function BeaconsPage() {
                             Start New Game
                           </Button>
                         )}
-                        <p className="text-gray-500 text-xs text-center">
-                          Creates a new game session on this beacon
-                        </p>
+                        {isAuthenticated && (
+                          <p className="text-gray-500 text-xs text-center">
+                            Creates a new game session on this beacon
+                          </p>
+                        )}
                               {isAuthenticated && (
                                 <Button 
                             className="w-full bg-red-500 hover:bg-red-600 text-white disabled:bg-gray-600 disabled:cursor-not-allowed"
@@ -1930,9 +1932,11 @@ export function BeaconsPage() {
                             )}
                         </Button>
                         )}
-                        <p className="text-gray-500 text-xs text-center">
-                          Activate this beacon to enable game sessions
-                        </p>
+                        {isAuthenticated && (
+                          <p className="text-gray-500 text-xs text-center">
+                            Activate this beacon to enable game sessions
+                          </p>
+                        )}
                       </>
                     )}
                   </div>

@@ -158,13 +158,17 @@ function AppContent() {
                   Admin Login
                 </Button>
               )}
-              <div className="text-right">
-                <p className="text-sm text-white">Game Master</p>
-                <p className="text-xs text-gray-500">Administrator</p>
-              </div>
-              <div className="h-10 w-10 rounded-full bg-[#e63946] flex items-center justify-center" style={{ boxShadow: '0 0 15px rgba(230, 57, 70, 0.5)' }}>
-                <span className="text-white">♠</span>
-              </div>
+              {isAuthenticated && (
+                <>
+                  <div className="text-right">
+                    <p className="text-sm text-white">Game Master</p>
+                    <p className="text-xs text-gray-500">Administrator</p>
+                  </div>
+                  <div className="h-10 w-10 rounded-full bg-[#e63946] flex items-center justify-center" style={{ boxShadow: '0 0 15px rgba(230, 57, 70, 0.5)' }}>
+                    <span className="text-white">♠</span>
+                  </div>
+                </>
+              )}
             </div>
           </header>
 
