@@ -35,20 +35,24 @@ export const AdminLogin: React.FC = () => {
   };
 
   return (
-    <Card className="w-full max-w-lg mx-6 bg-gray-900/95 border-gray-700 shadow-2xl backdrop-blur-sm">
-        <CardHeader className="text-center pb-8 pt-10 px-10">
-          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-[#e63946] to-[#d62828] shadow-lg">
-            <Lock className="h-8 w-8 text-white" />
+    <div className="w-full max-w-md mx-auto">
+      <div className="bg-gray-900/95 border border-gray-700 rounded-2xl shadow-2xl backdrop-blur-sm overflow-hidden">
+        {/* Header Section */}
+        <div className="text-center py-12 px-8 bg-gradient-to-br from-gray-800/50 to-gray-900/50">
+          <div className="mx-auto mb-8 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-[#e63946] to-[#d62828] shadow-xl">
+            <Lock className="h-10 w-10 text-white" />
           </div>
-          <CardTitle className="text-3xl font-bold text-white mb-3">Admin Access</CardTitle>
-          <CardDescription className="text-gray-300 text-base leading-relaxed px-4">
-            Enter the admin password to access management features
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="px-10 pb-10">
-          <form onSubmit={handleSubmit} className="space-y-8">
-            <div className="space-y-4">
-              <Label htmlFor="password" className="text-white font-medium text-sm">
+          <h1 className="text-2xl font-bold text-white mb-3">Admin Access</h1>
+          <p className="text-gray-400 text-sm leading-relaxed">
+            Enter your password to access management features
+          </p>
+        </div>
+
+        {/* Form Section */}
+        <div className="px-8 py-8">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="password" className="text-gray-300 font-medium text-sm">
                 Password
               </Label>
               <div className="relative">
@@ -58,34 +62,32 @@ export const AdminLogin: React.FC = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter admin password"
-                  className="pr-12 h-14 bg-gray-950/50 border-gray-600 text-white placeholder:text-gray-400 focus:border-[#e63946] focus:ring-[#e63946]/20 transition-all duration-200 text-base"
+                  className="w-full h-12 pl-4 pr-12 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder:text-gray-500 focus:border-[#e63946] focus:ring-2 focus:ring-[#e63946]/20 transition-all duration-200"
                   required
                 />
-                <Button
+                <button
                   type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-2 top-2 h-10 w-10 hover:bg-gray-800/50 rounded-md"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-200 transition-colors"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
-                    <EyeOff className="h-4 w-4 text-gray-400 hover:text-gray-200" />
+                    <EyeOff className="h-5 w-5" />
                   ) : (
-                    <Eye className="h-4 w-4 text-gray-400 hover:text-gray-200" />
+                    <Eye className="h-5 w-5" />
                   )}
-                </Button>
+                </button>
               </div>
             </div>
             
             {error && (
-              <Alert variant="destructive" className="bg-red-500/10 border-red-500/20 text-red-400">
-                <AlertDescription className="text-sm">{error}</AlertDescription>
-              </Alert>
+              <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3">
+                <p className="text-red-400 text-sm">{error}</p>
+              </div>
             )}
             
-            <Button
+            <button
               type="submit"
-              className="w-full h-14 bg-gradient-to-r from-[#e63946] to-[#d62828] hover:from-[#d62828] hover:to-[#b91c1c] text-white font-medium text-base shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full h-12 bg-gradient-to-r from-[#e63946] to-[#d62828] hover:from-[#d62828] hover:to-[#b91c1c] text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
               disabled={isLoading}
             >
               {isLoading ? (
@@ -96,9 +98,10 @@ export const AdminLogin: React.FC = () => {
               ) : (
                 'Sign In'
               )}
-            </Button>
+            </button>
           </form>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
+    </div>
   );
 };
