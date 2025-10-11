@@ -2016,9 +2016,11 @@ export function BeaconsPage() {
             </div>
           </DialogContent>
         </Dialog>
+        )}
 
         {/* Start New Game Dialog */}
-        <Dialog open={isStartGameDialogOpen} onOpenChange={setIsStartGameDialogOpen}>
+        {isAuthenticated && (
+          <Dialog open={isStartGameDialogOpen} onOpenChange={setIsStartGameDialogOpen}>
           <DialogContent className="bg-gray-900 border-gray-800">
             <DialogHeader>
               <DialogTitle className="text-white">Start New Game</DialogTitle>
