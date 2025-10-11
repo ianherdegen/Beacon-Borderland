@@ -33,7 +33,9 @@ const formatTimeAgo = (dateString: string | null): string => {
 };
 
 // Helper function to calculate countdown from last game (3 days)
-const getCountdownFromLastGame = (dateString: string | null): string => {
+const getCountdownFromLastGame = (dateString: string | null, playerStatus: string): string => {
+  // Show dash for eliminated players since countdown is irrelevant
+  if (playerStatus === 'Eliminated') return '-';
   if (!dateString) return '-';
   
   const lastGameDate = new Date(dateString);
@@ -541,8 +543,8 @@ export function PlayersPage() {
                       </TableCell>
                       <TableCell className="text-[#ff00ff]">{calculatePlayerWins(player.id)}</TableCell>
                       <TableCell className="text-gray-400">
-                        <span className={`font-mono text-sm font-bold ${getCountdownFromLastGame(player.last_game_at) === 'EXPIRED' ? 'text-red-500' : getCountdownFromLastGame(player.last_game_at) === '-' ? 'text-gray-400' : 'text-orange-400'}`}>
-                          {getCountdownFromLastGame(player.last_game_at)}
+                        <span className={`font-mono text-sm font-bold ${getCountdownFromLastGame(player.last_game_at, player.status) === 'EXPIRED' ? 'text-red-500' : getCountdownFromLastGame(player.last_game_at, player.status) === '-' ? 'text-gray-400' : 'text-orange-400'}`}>
+                          {getCountdownFromLastGame(player.last_game_at, player.status)}
                         </span>
                       </TableCell>
                       <TableCell className="text-right">
