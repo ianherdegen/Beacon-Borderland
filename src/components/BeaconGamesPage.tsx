@@ -6,6 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { Badge } from './ui/badge';
 import { Avatar, AvatarFallback } from './ui/avatar';
 import { Search, Eye, Play, Video, Trophy, Radio, FileCode, Loader2, Edit, X } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from './ui/sheet';
 import { Separator } from './ui/separator';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from './ui/dialog';
@@ -35,6 +36,7 @@ interface BeaconGameDisplay {
 }
 
 export function BeaconGamesPage() {
+  const { isAuthenticated } = useAuth();
   const [beaconGames, setBeaconGames] = useState<BeaconGameDisplay[]>([]);
   const [selectedGame, setSelectedGame] = useState<BeaconGameDisplay | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>('all');
@@ -652,30 +654,34 @@ export function BeaconGamesPage() {
                           />
                         </div>
                         <div className="flex gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleEditVideo(selectedGame)}
-                            className="w-full border-gray-700 text-gray-400 hover:bg-gray-800"
-                          >
-                            <Edit className="h-3 w-3 mr-1" />
-                            Edit Video
-                          </Button>
+                          {isAuthenticated && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleEditVideo(selectedGame)}
+                              className="w-full border-gray-700 text-gray-400 hover:bg-gray-800"
+                            >
+                              <Edit className="h-3 w-3 mr-1" />
+                              Edit Video
+                            </Button>
+                          )}
                         </div>
                       </div>
                     ) : (
                       <div className="text-center py-6">
                         <Video className="h-12 w-12 text-gray-600 mx-auto mb-3" />
                         <p className="text-gray-400 mb-4">No match footage available</p>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleEditVideo(selectedGame)}
-                          className="border-gray-700 text-gray-400 hover:bg-gray-800"
-                        >
-                          <Edit className="h-3 w-3 mr-1" />
-                          Add Match Video
-                        </Button>
+                        {isAuthenticated && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEditVideo(selectedGame)}
+                            className="border-gray-700 text-gray-400 hover:bg-gray-800"
+                          >
+                            <Edit className="h-3 w-3 mr-1" />
+                            Add Match Video
+                          </Button>
+                        )}
                       </div>
                     )}
                   </Card>
@@ -687,7 +693,8 @@ export function BeaconGamesPage() {
       </Sheet>
 
       {/* Edit Video Dialog */}
-      <Dialog open={isEditVideoDialogOpen} onOpenChange={setIsEditVideoDialogOpen}>
+      {isAuthenticated && (
+        <Dialog open={isEditVideoDialogOpen} onOpenChange={setIsEditVideoDialogOpen}>
         <DialogContent className="bg-gray-900 border-gray-800 max-w-2xl">
           <DialogHeader>
             <DialogTitle className="text-white text-2xl flex items-center gap-2">
@@ -771,7 +778,8 @@ export function BeaconGamesPage() {
             </Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
+        </Dialog>
+      )}
     </div>
   );
 }
