@@ -8,6 +8,7 @@ import {
   Film,
   ChevronRight,
   LogOut,
+  LogIn,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -31,6 +32,7 @@ import { GameTemplatesPage } from './components/GameTemplatesPage';
 import { BeaconGamesPage } from './components/BeaconGamesPage';
 import { ClipsMediaPage } from './components/ClipsMediaPage';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { AdminLogin } from './components/AdminLogin';
 
 const menuItems = [
   { icon: LayoutDashboard, label: 'Overview', id: 'overview' },
@@ -114,6 +116,7 @@ function AppSidebar({ activeItem, setActiveItem }: { activeItem: string; setActi
 }
 
 function AppContent() {
+  const { isAuthenticated, showLogin, setShowLogin } = useAuth();
   const [activeItem, setActiveItem] = useState('overview');
 
   const renderPage = () => {
@@ -144,6 +147,17 @@ function AppContent() {
             <SidebarTrigger className="text-gray-400 hover:text-white" />
             <div className="flex-1" />
             <div className="flex items-center gap-3">
+              {!isAuthenticated && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowLogin(true)}
+                  className="text-gray-400 hover:text-white border-gray-700 hover:border-gray-600"
+                >
+                  <LogIn className="h-4 w-4 mr-2" />
+                  Admin Login
+                </Button>
+              )}
               <div className="text-right">
                 <p className="text-sm text-white">Game Master</p>
                 <p className="text-xs text-gray-500">Administrator</p>
@@ -160,6 +174,21 @@ function AppContent() {
         </SidebarInset>
       </SidebarProvider>
       <Toaster />
+      
+      {/* Global Admin Login Dialog */}
+      {showLogin && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="relative">
+            <button
+              onClick={() => setShowLogin(false)}
+              className="absolute -top-2 -right-2 z-10 h-8 w-8 rounded-full bg-gray-800 text-white hover:bg-gray-700 flex items-center justify-center"
+            >
+              ×
+            </button>
+            <AdminLogin />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -5,6 +5,8 @@ interface AuthContextType {
   login: (password: string) => Promise<boolean>;
   logout: () => void;
   isLoading: boolean;
+  showLogin: boolean;
+  setShowLogin: (show: boolean) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -16,6 +18,7 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [showLogin, setShowLogin] = useState(false);
 
   useEffect(() => {
     // Check if user is already authenticated (stored in sessionStorage)
@@ -59,6 +62,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     login,
     logout,
     isLoading,
+    showLogin,
+    setShowLogin,
   };
 
   return (

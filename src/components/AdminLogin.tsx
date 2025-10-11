@@ -12,7 +12,7 @@ export const AdminLogin: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, setShowLogin } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,7 +21,10 @@ export const AdminLogin: React.FC = () => {
 
     try {
       const success = await login(password);
-      if (!success) {
+      if (success) {
+        setShowLogin(false);
+        setPassword('');
+      } else {
         setError('Invalid password');
       }
     } catch (error) {
@@ -32,8 +35,7 @@ export const AdminLogin: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-900 p-4">
-      <Card className="w-full max-w-md">
+    <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gray-800">
             <Lock className="h-6 w-6 text-white" />
@@ -91,6 +93,5 @@ export const AdminLogin: React.FC = () => {
           </form>
         </CardContent>
       </Card>
-    </div>
   );
 };
