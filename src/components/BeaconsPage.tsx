@@ -1263,7 +1263,6 @@ export function BeaconsPage() {
               </div>
             )
           )}
-          )}
           <Tooltip>
             {isAuthenticated && (
               <TooltipTrigger asChild>
@@ -1353,7 +1352,6 @@ export function BeaconsPage() {
                 </div>
               </div>
             )
-          )}
           )}
           <Tooltip>
             {isAuthenticated && (
@@ -1459,7 +1457,6 @@ export function BeaconsPage() {
                 })}
               </div>
             )
-          )}
           )}
           <Tooltip>
             {isAuthenticated && (
