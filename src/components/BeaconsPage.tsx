@@ -1804,7 +1804,7 @@ export function BeaconsPage() {
                               </div>
 
                               {/* Winner Selection Section */}
-                            {renderWinnerSection(game, game.game_template_type)}
+                            {isAuthenticated && renderWinnerSection(game, game.game_template_type)}
 
                               {isAuthenticated && (
                                 <Button 
