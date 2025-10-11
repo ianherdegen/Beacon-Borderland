@@ -1254,25 +1254,27 @@ export function BeaconsPage() {
           </div>
           )}
           <Tooltip>
-            <TooltipTrigger asChild>
-              <div>
-                <Button 
-                  className="w-full bg-orange-500 hover:bg-orange-600 text-white disabled:bg-gray-600 disabled:cursor-not-allowed" 
-                  size="sm"
-                  onClick={() => handleConfirmOutcome(game.id, templateType)}
-                  disabled={!hasOutcome || !hasParticipants || endingGame === game.id}
-                >
-                  {endingGame === game.id ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Ending...
-                    </>
-                  ) : (
-                    'Confirm & End Game'
-                  )}
-                </Button>
-              </div>
-            </TooltipTrigger>
+            {isAuthenticated && (
+              <TooltipTrigger asChild>
+                <div>
+                  <Button 
+                    className="w-full bg-orange-500 hover:bg-orange-600 text-white disabled:bg-gray-600 disabled:cursor-not-allowed" 
+                    size="sm"
+                    onClick={() => handleConfirmOutcome(game.id, templateType)}
+                    disabled={!hasOutcome || !hasParticipants || endingGame === game.id}
+                  >
+                    {endingGame === game.id ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Ending...
+                      </>
+                    ) : (
+                      'Confirm & End Game'
+                    )}
+                  </Button>
+                </div>
+              </TooltipTrigger>
+            )}
             {!hasParticipants ? (
               <TooltipContent>
                 <p>Add participants to end the game</p>
@@ -1332,25 +1334,27 @@ export function BeaconsPage() {
           </div>
           )}
           <Tooltip>
-            <TooltipTrigger asChild>
-              <div>
-                <Button 
-                  className="w-full bg-orange-500 hover:bg-orange-600 text-white disabled:bg-gray-600 disabled:cursor-not-allowed" 
-                  size="sm"
-                  onClick={() => handleConfirmOutcome(game.id, templateType)}
-                  disabled={!hasOutcome || !hasParticipants || endingGame === game.id}
-                >
-                  {endingGame === game.id ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Ending...
-                    </>
-                  ) : (
-                    'Confirm & End Game'
-                  )}
-                </Button>
-              </div>
-            </TooltipTrigger>
+            {isAuthenticated && (
+              <TooltipTrigger asChild>
+                <div>
+                  <Button 
+                    className="w-full bg-orange-500 hover:bg-orange-600 text-white disabled:bg-gray-600 disabled:cursor-not-allowed" 
+                    size="sm"
+                    onClick={() => handleConfirmOutcome(game.id, templateType)}
+                    disabled={!hasOutcome || !hasParticipants || endingGame === game.id}
+                  >
+                    {endingGame === game.id ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Ending...
+                      </>
+                    ) : (
+                      'Confirm & End Game'
+                    )}
+                  </Button>
+                </div>
+              </TooltipTrigger>
+            )}
             {!hasParticipants ? (
               <TooltipContent>
                 <p>Add participants to end the game</p>
@@ -1417,18 +1421,20 @@ export function BeaconsPage() {
           </div>
           )}
           <Tooltip>
-            <TooltipTrigger asChild>
-              <div>
-                <Button 
-                  className="w-full bg-orange-500 hover:bg-orange-600 text-white" 
-                  size="sm"
-                  onClick={() => handleConfirmOutcome(game.id, templateType)}
-                  disabled={!isComplete || !hasParticipants}
-                >
-                  Confirm & End Game
-                </Button>
-              </div>
-            </TooltipTrigger>
+            {isAuthenticated && (
+              <TooltipTrigger asChild>
+                <div>
+                  <Button 
+                    className="w-full bg-orange-500 hover:bg-orange-600 text-white" 
+                    size="sm"
+                    onClick={() => handleConfirmOutcome(game.id, templateType)}
+                    disabled={!isComplete || !hasParticipants}
+                  >
+                    Confirm & End Game
+                  </Button>
+                </div>
+              </TooltipTrigger>
+            )}
             {!hasParticipants ? (
               <TooltipContent>
                 <p>Add participants to end the game</p>
@@ -1759,24 +1765,26 @@ export function BeaconsPage() {
                               {/* Winner Selection Section */}
                             {renderWinnerSection(game, game.game_template_type)}
 
-                              <Button 
-                                className="w-full bg-red-500 hover:bg-red-600 text-white disabled:bg-gray-600 disabled:cursor-not-allowed"
-                                size="sm"
-                                onClick={() => handleCancelGame(game.id)}
-                                disabled={cancelingGame === game.id}
-                              >
-                                {cancelingGame === game.id ? (
-                                  <>
-                                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                    Cancelling...
-                                  </>
-                                ) : (
-                                  <>
-                                    <XCircle className="h-4 w-4 mr-2" />
-                                    Cancel Game
-                                  </>
-                                )}
-                              </Button>
+                              {isAuthenticated && (
+                                <Button 
+                                  className="w-full bg-red-500 hover:bg-red-600 text-white disabled:bg-gray-600 disabled:cursor-not-allowed"
+                                  size="sm"
+                                  onClick={() => handleCancelGame(game.id)}
+                                  disabled={cancelingGame === game.id}
+                                >
+                                  {cancelingGame === game.id ? (
+                                    <>
+                                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                      Cancelling...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <XCircle className="h-4 w-4 mr-2" />
+                                      Cancel Game
+                                    </>
+                                  )}
+                                </Button>
+                              )}
                             </div>
                           </Card>
                         ))}
@@ -1801,18 +1809,20 @@ export function BeaconsPage() {
                     {selectedBeacon.active ? (
                       <>
                         <Dialog open={isTemplateDialogOpen} onOpenChange={setIsTemplateDialogOpen}>
-                          <DialogTrigger asChild>
-                              <Button 
-                              className="w-full bg-[#00d9ff] hover:bg-[#00d9ff]/90 text-black disabled:bg-gray-600 disabled:cursor-not-allowed"
-                              disabled={selectedBeacon.activeGames && selectedBeacon.activeGames.length > 0}
-                              >
-                                <FileCode className="h-4 w-4 mr-2" />
-                              {selectedBeacon.activeGames && selectedBeacon.activeGames.length > 0 
-                                ? `Cannot Change Template (${selectedBeacon.activeGames.length} Active Games)`
-                                : 'Change Game Template'
-                              }
-                              </Button>
-                          </DialogTrigger>
+                          {isAuthenticated && (
+                            <DialogTrigger asChild>
+                                <Button 
+                                className="w-full bg-[#00d9ff] hover:bg-[#00d9ff]/90 text-black disabled:bg-gray-600 disabled:cursor-not-allowed"
+                                disabled={selectedBeacon.activeGames && selectedBeacon.activeGames.length > 0}
+                                >
+                                  <FileCode className="h-4 w-4 mr-2" />
+                                {selectedBeacon.activeGames && selectedBeacon.activeGames.length > 0 
+                                  ? `Cannot Change Template (${selectedBeacon.activeGames.length} Active Games)`
+                                  : 'Change Game Template'
+                                }
+                                </Button>
+                            </DialogTrigger>
+                          )}
                           <DialogContent className="bg-gray-900 border-gray-800 max-w-2xl">
                             <DialogHeader>
                               <DialogTitle className="text-white text-2xl">Select Game Template</DialogTitle>

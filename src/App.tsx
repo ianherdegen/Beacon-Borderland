@@ -177,11 +177,11 @@ function AppContent() {
       
       {/* Global Admin Login Dialog */}
       {showLogin && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
           <div className="relative animate-in fade-in-0 zoom-in-95 duration-200">
             <button
               onClick={() => setShowLogin(false)}
-              className="absolute -top-3 -right-3 z-10 h-8 w-8 rounded-full bg-gray-800/90 text-white hover:bg-gray-700 hover:scale-110 flex items-center justify-center transition-all duration-200 shadow-lg border border-gray-600"
+              className="absolute -top-3 -right-3 z-10 h-8 w-8 rounded-full bg-gray-800 text-white hover:bg-gray-700 hover:scale-110 flex items-center justify-center transition-all duration-200 shadow-lg border border-gray-600"
             >
               ×
             </button>
