@@ -7,6 +7,7 @@ import {
   Gamepad2,
   Film,
   ChevronRight,
+  LogOut,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -29,6 +30,7 @@ import { BeaconsPage } from './components/BeaconsPage';
 import { GameTemplatesPage } from './components/GameTemplatesPage';
 import { BeaconGamesPage } from './components/BeaconGamesPage';
 import { ClipsMediaPage } from './components/ClipsMediaPage';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 const menuItems = [
   { icon: LayoutDashboard, label: 'Overview', id: 'overview' },
@@ -40,6 +42,8 @@ const menuItems = [
 ];
 
 function AppSidebar({ activeItem, setActiveItem }: { activeItem: string; setActiveItem: (item: string) => void }) {
+  const { isAuthenticated, logout } = useAuth();
+
   return (
     <Sidebar className="border-r border-gray-800">
       <SidebarContent className="bg-[#0f0f0f]">
@@ -92,12 +96,24 @@ function AppSidebar({ activeItem, setActiveItem }: { activeItem: string; setActi
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        {isAuthenticated && (
+          <div className="p-4 border-t border-gray-800">
+            <Button
+              onClick={logout}
+              variant="ghost"
+              className="w-full justify-start text-gray-400 hover:text-white hover:bg-gray-800"
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Logout
+            </Button>
+          </div>
+        )}
       </SidebarContent>
     </Sidebar>
   );
 }
 
-export default function App() {
+function AppContent() {
   const [activeItem, setActiveItem] = useState('overview');
 
   const renderPage = () => {
@@ -145,5 +161,13 @@ export default function App() {
       </SidebarProvider>
       <Toaster />
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }

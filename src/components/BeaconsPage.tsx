@@ -18,6 +18,7 @@ import { Beacon, BeaconGameWithDetails, GameTemplate, Player, BeaconGamePlayerWi
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from './ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { useAuth } from '../contexts/AuthContext';
 
 type GameType = 'solo' | 'versus' | 'group';
 
@@ -78,6 +79,7 @@ const getTemplateTypeIcon = (type: GameType | null) => {
 };
 
 export function BeaconsPage() {
+  const { isAuthenticated } = useAuth();
   const [beacons, setBeacons] = useState<BeaconWithLocation[]>([]);
   const [selectedBeacon, setSelectedBeacon] = useState<BeaconWithLocation | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -1464,12 +1466,14 @@ export function BeaconsPage() {
                 className="pl-10 bg-gray-950 border-gray-800 text-white placeholder:text-gray-500"
               />
             </div>
-            <Button
-              onClick={() => setIsCreateBeaconDialogOpen(true)}
-              className="bg-[#00d9ff] hover:bg-[#00d9ff]/90 text-black"
-            >
-              <Radio className="h-4 w-4" />
-            </Button>
+            {isAuthenticated && (
+              <Button
+                onClick={() => setIsCreateBeaconDialogOpen(true)}
+                className="bg-[#00d9ff] hover:bg-[#00d9ff]/90 text-black"
+              >
+                <Radio className="h-4 w-4" />
+              </Button>
+            )}
           </div>
         </Card>
 
@@ -1566,25 +1570,27 @@ export function BeaconsPage() {
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => beacon.active ? handleDeactivateBeacon(beacon.id) : handleActivateBeacon(beacon.id)}
-                                disabled={updatingBeacon === beacon.id || (beacon.active && beacon.activeGames && beacon.activeGames.length > 0)}
-                                className={
-                                  beacon.active 
-                                    ? "text-red-400 hover:bg-red-500/10 hover:text-red-400" 
-                                    : "text-green-400 hover:bg-green-500/10 hover:text-green-400"
-                                }
-                              >
-                                {updatingBeacon === beacon.id ? (
-                                  <Loader2 className="h-4 w-4 animate-spin" />
-                                ) : beacon.active ? (
-                                  <XCircle className="h-4 w-4" />
-                                ) : (
-                                  <Radio className="h-4 w-4" />
-                                )}
-                              </Button>
+                              {isAuthenticated && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => beacon.active ? handleDeactivateBeacon(beacon.id) : handleActivateBeacon(beacon.id)}
+                                  disabled={updatingBeacon === beacon.id || (beacon.active && beacon.activeGames && beacon.activeGames.length > 0)}
+                                  className={
+                                    beacon.active 
+                                      ? "text-red-400 hover:bg-red-500/10 hover:text-red-400" 
+                                      : "text-green-400 hover:bg-green-500/10 hover:text-green-400"
+                                  }
+                                >
+                                  {updatingBeacon === beacon.id ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                  ) : beacon.active ? (
+                                    <XCircle className="h-4 w-4" />
+                                  ) : (
+                                    <Radio className="h-4 w-4" />
+                                  )}
+                                </Button>
+                              )}
                             </TooltipTrigger>
                             {beacon.active && beacon.activeGames && beacon.activeGames.length > 0 ? (
                               <TooltipContent>
@@ -1721,15 +1727,17 @@ export function BeaconsPage() {
                               <div>
                                 <div className="flex items-center justify-between mb-2">
                                   <p className="text-gray-400 text-sm">Participants</p>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => handleOpenManageParticipants(game)}
-                                    className="text-[#00d9ff] hover:bg-[#00d9ff]/10 hover:text-[#00d9ff] h-6 px-2"
-                                  >
-                                    <UsersIcon className="h-3 w-3 mr-1" />
-                                    Manage
-                                  </Button>
+                                  {isAuthenticated && (
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => handleOpenManageParticipants(game)}
+                                      className="text-[#00d9ff] hover:bg-[#00d9ff]/10 hover:text-[#00d9ff] h-6 px-2"
+                                    >
+                                      <UsersIcon className="h-3 w-3 mr-1" />
+                                      Manage
+                                    </Button>
+                                  )}
                                 </div>
                                 <div className="flex flex-wrap gap-1">
                                   {game.players?.map((player, playerIndex) => {
@@ -1919,7 +1927,8 @@ export function BeaconsPage() {
         </Sheet>
 
         {/* Manage Participants Dialog */}
-        <Dialog open={isManageParticipantsDialogOpen} onOpenChange={setIsManageParticipantsDialogOpen}>
+        {isAuthenticated && (
+          <Dialog open={isManageParticipantsDialogOpen} onOpenChange={setIsManageParticipantsDialogOpen}>
           <DialogContent className="bg-gray-900 border-gray-800 max-w-2xl">
             <DialogHeader>
               <DialogTitle className="text-white">Manage Participants - {selectedGameForParticipants?.id}</DialogTitle>
@@ -2062,10 +2071,12 @@ export function BeaconsPage() {
               </div>
             </div>
           </DialogContent>
-        </Dialog>
+          </Dialog>
+        )}
 
         {/* Create Beacon Dialog */}
-        <Dialog open={isCreateBeaconDialogOpen} onOpenChange={setIsCreateBeaconDialogOpen}>
+        {isAuthenticated && (
+          <Dialog open={isCreateBeaconDialogOpen} onOpenChange={setIsCreateBeaconDialogOpen}>
           <DialogContent className="bg-gray-900 border-gray-800 max-w-2xl">
             <DialogHeader>
               <DialogTitle className="text-white">Create New Beacon</DialogTitle>
@@ -2151,7 +2162,8 @@ export function BeaconsPage() {
               </div>
             </div>
           </DialogContent>
-        </Dialog>
+          </Dialog>
+        )}
       </div>
     </TooltipProvider>
   );

@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 import { PlayersService } from '../services/players';
 import { Player } from '../types';
 import { supabase } from '../lib/supabase';
+import { useAuth } from '../contexts/AuthContext';
 
 // Helper function to format time ago
 const formatTimeAgo = (dateString: string | null): string => {
@@ -53,6 +54,7 @@ const getCountdownFromLastGame = (dateString: string | null): string => {
 
 
 export function PlayersPage() {
+  const { isAuthenticated } = useAuth();
   const [players, setPlayers] = useState<Player[]>([]);
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>('all');
@@ -366,12 +368,14 @@ export function PlayersPage() {
                 className="pl-10 bg-gray-950 border-gray-800 text-white placeholder:text-gray-500"
               />
             </div>
-            <Button
-              onClick={handleCreatePlayer}
-              className="bg-[#00d9ff] hover:bg-[#00d9ff]/90 text-black"
-            >
-              <UserPlus className="h-4 w-4" />
-            </Button>
+            {isAuthenticated && (
+              <Button
+                onClick={handleCreatePlayer}
+                className="bg-[#00d9ff] hover:bg-[#00d9ff]/90 text-black"
+              >
+                <UserPlus className="h-4 w-4" />
+              </Button>
+            )}
           </div>
           <div className="flex gap-2 overflow-x-auto pb-2">
             <Button
@@ -534,14 +538,16 @@ export function PlayersPage() {
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
                       <h2 className="text-white text-xl">{selectedPlayer.username}</h2>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleEditPlayer(selectedPlayer)}
-                        className="text-gray-400 hover:text-[#00d9ff] hover:bg-[#00d9ff]/10"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
+                      {isAuthenticated && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleEditPlayer(selectedPlayer)}
+                          className="text-gray-400 hover:text-[#00d9ff] hover:bg-[#00d9ff]/10"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      )}
                     </div>
                     <Badge
                       className={
@@ -720,23 +726,25 @@ export function PlayersPage() {
                 {(selectedPlayer.status === 'Eliminated' || selectedPlayer.status === 'Forfeit') && (
                   <>
                     <Separator className="bg-gray-800" />
-                    <Button 
-                      className="w-full bg-[#00d9ff] hover:bg-[#00d9ff]/90 text-black disabled:opacity-50"
-                      onClick={() => handleReinstatePlayer(selectedPlayer.id)}
-                      disabled={reinstating}
-                    >
-                      {reinstating ? (
-                        <>
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                          Reinstating...
-                        </>
-                      ) : (
-                        <>
-                          <UserCheck className="h-4 w-4 mr-2" />
-                          Reinstate Player
-                        </>
-                      )}
-                    </Button>
+                    {isAuthenticated && (
+                      <Button 
+                        className="w-full bg-[#00d9ff] hover:bg-[#00d9ff]/90 text-black disabled:opacity-50"
+                        onClick={() => handleReinstatePlayer(selectedPlayer.id)}
+                        disabled={reinstating}
+                      >
+                        {reinstating ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            Reinstating...
+                          </>
+                        ) : (
+                          <>
+                            <UserCheck className="h-4 w-4 mr-2" />
+                            Reinstate Player
+                          </>
+                        )}
+                      </Button>
+                    )}
                   </>
                 )}
               </div>
@@ -746,7 +754,8 @@ export function PlayersPage() {
       </Sheet>
 
       {/* Create Player Dialog */}
-      <Dialog open={isCreatePlayerDialogOpen} onOpenChange={setIsCreatePlayerDialogOpen}>
+      {isAuthenticated && (
+        <Dialog open={isCreatePlayerDialogOpen} onOpenChange={setIsCreatePlayerDialogOpen}>
         <DialogContent className="bg-gray-900 border-gray-800 max-w-2xl">
           <DialogHeader>
             <DialogTitle className="text-white text-2xl flex items-center gap-2">
@@ -827,10 +836,12 @@ export function PlayersPage() {
             </Button>
           </div>
         </DialogContent>
-      </Dialog>
+        </Dialog>
+      )}
 
       {/* Edit Player Dialog */}
-      <Dialog open={isEditPlayerDialogOpen} onOpenChange={setIsEditPlayerDialogOpen}>
+      {isAuthenticated && (
+        <Dialog open={isEditPlayerDialogOpen} onOpenChange={setIsEditPlayerDialogOpen}>
         <DialogContent className="bg-gray-900 border-gray-800 max-w-2xl">
           <DialogHeader>
             <DialogTitle className="text-white text-2xl flex items-center gap-2">
@@ -911,7 +922,8 @@ export function PlayersPage() {
             </Button>
           </div>
         </DialogContent>
-      </Dialog>
+        </Dialog>
+      )}
     </div>
   );
 }
