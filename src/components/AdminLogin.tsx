@@ -35,20 +35,20 @@ export const AdminLogin: React.FC = () => {
   };
 
   return (
-    <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gray-800">
-            <Lock className="h-6 w-6 text-white" />
+    <Card className="w-full max-w-md mx-4 bg-gray-900/95 border-gray-700 shadow-2xl backdrop-blur-sm">
+        <CardHeader className="text-center pb-6 pt-8 px-8">
+          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-[#e63946] to-[#d62828] shadow-lg">
+            <Lock className="h-8 w-8 text-white" />
           </div>
-          <CardTitle className="text-2xl text-white">Admin Access</CardTitle>
-          <CardDescription className="text-gray-400">
+          <CardTitle className="text-3xl font-bold text-white mb-2">Admin Access</CardTitle>
+          <CardDescription className="text-gray-300 text-base leading-relaxed">
             Enter the admin password to access management features
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="password" className="text-white">
+        <CardContent className="px-8 pb-8">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-3">
+              <Label htmlFor="password" className="text-white font-medium text-sm">
                 Password
               </Label>
               <div className="relative">
@@ -58,37 +58,44 @@ export const AdminLogin: React.FC = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter admin password"
-                  className="pr-10"
+                  className="pr-12 h-12 bg-gray-950/50 border-gray-600 text-white placeholder:text-gray-400 focus:border-[#e63946] focus:ring-[#e63946]/20 transition-all duration-200"
                   required
                 />
                 <Button
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                  className="absolute right-1 top-1 h-10 w-10 hover:bg-gray-800/50 rounded-md"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
-                    <EyeOff className="h-4 w-4 text-gray-400" />
+                    <EyeOff className="h-4 w-4 text-gray-400 hover:text-gray-200" />
                   ) : (
-                    <Eye className="h-4 w-4 text-gray-400" />
+                    <Eye className="h-4 w-4 text-gray-400 hover:text-gray-200" />
                   )}
                 </Button>
               </div>
             </div>
             
             {error && (
-              <Alert variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
+              <Alert variant="destructive" className="bg-red-500/10 border-red-500/20 text-red-400">
+                <AlertDescription className="text-sm">{error}</AlertDescription>
               </Alert>
             )}
             
             <Button
               type="submit"
-              className="w-full"
+              className="w-full h-12 bg-gradient-to-r from-[#e63946] to-[#d62828] hover:from-[#d62828] hover:to-[#b91c1c] text-white font-medium text-base shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={isLoading}
             >
-              {isLoading ? 'Signing in...' : 'Sign In'}
+              {isLoading ? (
+                <div className="flex items-center gap-2">
+                  <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Signing in...
+                </div>
+              ) : (
+                'Sign In'
+              )}
             </Button>
           </form>
         </CardContent>
