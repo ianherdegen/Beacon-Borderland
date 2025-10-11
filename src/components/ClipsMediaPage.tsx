@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Label } from './ui/label';
 import { toast } from 'sonner';
 import { GameTemplatesService } from '../services/game-templates';
+import { useAuth } from '../contexts/AuthContext';
 import { BeaconGamesService } from '../services/beacon-games';
 import { GameTemplate, BeaconGameWithDetails } from '../types';
 
@@ -43,6 +44,7 @@ const getEmbedUrl = (url: string) => {
 };
 
 export function ClipsMediaPage() {
+  const { isAuthenticated } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('explainer');
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -273,15 +275,17 @@ export function ClipsMediaPage() {
                     <FileCode className="h-4 w-4 text-[#00d9ff] mt-0.5 flex-shrink-0" />
                     <p className="text-gray-400 text-sm">Game Template</p>
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleEditClick(clip)}
-                    className="w-full border-gray-700 text-gray-400 hover:bg-gray-800 hover:text-white"
-                  >
-                    <Edit className="h-3 w-3 mr-2" />
-                    Edit Video
-                  </Button>
+                  {isAuthenticated && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleEditClick(clip)}
+                      className="w-full border-gray-700 text-gray-400 hover:bg-gray-800 hover:text-white"
+                    >
+                      <Edit className="h-3 w-3 mr-2" />
+                      Edit Video
+                    </Button>
+                  )}
                 </div>
               </Card>
             ))}
@@ -312,15 +316,17 @@ export function ClipsMediaPage() {
                     <Gamepad2 className="h-4 w-4 text-[#ff00ff] mt-0.5 flex-shrink-0" />
                     <p className="text-gray-400 text-sm line-clamp-2">{clip.relatedEntity}</p>
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleEditClick(clip)}
-                    className="w-full border-gray-700 text-gray-400 hover:bg-gray-800 hover:text-white"
-                  >
-                    <Edit className="h-3 w-3 mr-2" />
-                    Edit Video
-                  </Button>
+                  {isAuthenticated && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleEditClick(clip)}
+                      className="w-full border-gray-700 text-gray-400 hover:bg-gray-800 hover:text-white"
+                    >
+                      <Edit className="h-3 w-3 mr-2" />
+                      Edit Video
+                    </Button>
+                  )}
                 </div>
               </Card>
             ))}
@@ -330,7 +336,8 @@ export function ClipsMediaPage() {
       )}
 
       {/* Edit Clip Dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+      {isAuthenticated && (
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="bg-gray-900 border-gray-800 text-white">
           <DialogHeader>
             <DialogTitle className="text-white">Edit Video URL</DialogTitle>
@@ -372,7 +379,8 @@ export function ClipsMediaPage() {
             </Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
+        </Dialog>
+      )}
     </div>
   );
 }

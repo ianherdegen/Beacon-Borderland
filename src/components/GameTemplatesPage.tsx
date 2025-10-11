@@ -11,9 +11,11 @@ import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 import { toast } from 'sonner';
 import { GameTemplatesService } from '../services/game-templates';
 import { GameTemplate } from '../types';
+import { useAuth } from '../contexts/AuthContext';
 
 
 export function GameTemplatesPage() {
+  const { isAuthenticated } = useAuth();
   const [gameTemplates, setGameTemplates] = useState<GameTemplate[]>([]);
   const [selectedTemplate, setSelectedTemplate] = useState<GameTemplate | null>(null);
   const [filterType, setFilterType] = useState<string>('all');
@@ -221,12 +223,14 @@ export function GameTemplatesPage() {
                 className="pl-10 bg-gray-950 border-gray-800 text-white placeholder:text-gray-500"
               />
             </div>
-            <Button 
-              className="bg-[#00d9ff] hover:bg-[#00d9ff]/90 text-black"
-              onClick={() => setIsAddDialogOpen(true)}
-            >
-              <Plus className="h-4 w-4" />
-            </Button>
+            {isAuthenticated && (
+              <Button 
+                className="bg-[#00d9ff] hover:bg-[#00d9ff]/90 text-black"
+                onClick={() => setIsAddDialogOpen(true)}
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+            )}
           </div>
           <div className="flex gap-2 overflow-x-auto pb-2">
             <Button
@@ -348,15 +352,17 @@ export function GameTemplatesPage() {
                     <Eye className="h-3 w-3 mr-1" />
                     View
                   </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1 border-gray-700 text-gray-400 hover:bg-gray-800 hover:text-white"
-                    onClick={(e) => handleEditClick(template, e)}
-                  >
-                    <Edit className="h-3 w-3 mr-1" />
-                    Edit
-                  </Button>
+                  {isAuthenticated && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 border-gray-700 text-gray-400 hover:bg-gray-800 hover:text-white"
+                      onClick={(e) => handleEditClick(template, e)}
+                    >
+                      <Edit className="h-3 w-3 mr-1" />
+                      Edit
+                    </Button>
+                  )}
                 </div>
               </div>
             </Card>
@@ -454,13 +460,15 @@ export function GameTemplatesPage() {
 
                 {/* Actions */}
                 <div className="pt-4">
-                  <Button 
-                    className="w-full bg-[#00d9ff] hover:bg-[#00d9ff]/90 text-black"
-                    onClick={() => handleEditClick(selectedTemplate)}
-                  >
-                    <Edit className="h-4 w-4 mr-2" />
-                    Edit Template
-                  </Button>
+                  {isAuthenticated && (
+                    <Button 
+                      className="w-full bg-[#00d9ff] hover:bg-[#00d9ff]/90 text-black"
+                      onClick={() => handleEditClick(selectedTemplate)}
+                    >
+                      <Edit className="h-4 w-4 mr-2" />
+                      Edit Template
+                    </Button>
+                  )}
                 </div>
               </div>
             </>
@@ -469,7 +477,8 @@ export function GameTemplatesPage() {
       </Dialog>
 
       {/* Edit Template Dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={handleCancelEdit}>
+      {isAuthenticated && (
+        <Dialog open={isEditDialogOpen} onOpenChange={handleCancelEdit}>
         <DialogContent className="bg-gray-900 border-gray-800 max-w-3xl text-white max-h-[90vh] overflow-y-auto">
           {editingTemplate && (
             <>
@@ -631,10 +640,12 @@ export function GameTemplatesPage() {
             </>
           )}
         </DialogContent>
-      </Dialog>
+        </Dialog>
+      )}
 
       {/* Add Template Dialog */}
-      <Dialog open={isAddDialogOpen} onOpenChange={handleCancelAdd}>
+      {isAuthenticated && (
+        <Dialog open={isAddDialogOpen} onOpenChange={handleCancelAdd}>
         <DialogContent className="bg-gray-900 border-gray-800 max-w-3xl text-white max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-white text-2xl flex items-center gap-2">
@@ -805,7 +816,8 @@ export function GameTemplatesPage() {
             </div>
           </div>
         </DialogContent>
-      </Dialog>
+        </Dialog>
+      )}
     </div>
   );
 }
