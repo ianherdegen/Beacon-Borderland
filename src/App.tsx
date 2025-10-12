@@ -6,6 +6,7 @@ import {
   FileCode,
   Gamepad2,
   Film,
+  MessageCircle,
   ChevronRight,
   LogOut,
   LogIn,
@@ -31,6 +32,7 @@ import { ArenasPage } from './components/ArenasPage';
 import { GameTemplatesPage } from './components/GameTemplatesPage';
 import { ArenaGamesPage } from './components/ArenaGamesPage';
 import { ClipsMediaPage } from './components/ClipsMediaPage';
+import { ChatPage } from './components/ChatPage';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { AdminLogin } from './components/AdminLogin';
 import BackgroundForfeitService from './services/background-forfeit';
@@ -42,6 +44,7 @@ const menuItems = [
   { icon: FileCode, label: 'Game Templates', id: 'templates' },
   { icon: Gamepad2, label: 'Arena Games', id: 'games' },
   { icon: Film, label: 'Clips & Media', id: 'media' },
+  { icon: MessageCircle, label: 'Chat', id: 'chat' },
 ];
 
 function AppSidebar({ activeItem, setActiveItem }: { activeItem: string; setActiveItem: (item: string) => void }) {
@@ -144,6 +147,8 @@ function AppContent() {
         return <ArenaGamesPage />;
       case 'media':
         return <ClipsMediaPage />;
+      case 'chat':
+        return <ChatPage />;
       default:
         return <OverviewPage onNavigate={setActiveItem} />;
     }
