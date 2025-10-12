@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card } from './ui/card';
-import { MessageCircle, ExternalLink } from 'lucide-react';
+import { MessageCircle } from 'lucide-react';
 
 export function ChatPage() {
   return (
@@ -34,39 +34,22 @@ export function ChatPage() {
           <div className="relative">
             <div className="bg-gray-900 rounded-lg p-4 border border-gray-700">
               <iframe 
-                src="https://xat.com/embed/chat.php#id=220533585&gn=thebeacon" 
+                src="https://www3.cbox.ws/box/?boxid=3549617&boxtag=sa3DrW" 
                 width="100%" 
-                height="486" 
+                height="450" 
+                allowTransparency="yes" 
+                allow="autoplay" 
                 frameBorder="0" 
-                scrolling="no"
+                marginHeight="0" 
+                marginWidth="0" 
+                scrolling="auto"
                 className="rounded-lg"
-                style={{ minHeight: '486px' }}
+                style={{ minHeight: '450px' }}
                 title="The Beacon Chat"
               />
             </div>
           </div>
 
-          {/* Links */}
-          <div className="mt-4 flex flex-wrap gap-4 text-sm">
-            <a 
-              target="_blank" 
-              rel="noopener noreferrer"
-              href="https://xat.com/web_gear/chat/embed.php?id=220533585&GroupName=thebeacon"
-              className="flex items-center gap-2 text-[#e63946] hover:text-[#e63946]/80 transition-colors"
-            >
-              <ExternalLink className="h-4 w-4" />
-              Get thebeacon chat group
-            </a>
-            <a 
-              target="_blank" 
-              rel="noopener noreferrer"
-              href="https://xat.com/thebeacon"
-              className="flex items-center gap-2 text-[#e63946] hover:text-[#e63946]/80 transition-colors"
-            >
-              <ExternalLink className="h-4 w-4" />
-              Go to thebeacon website
-            </a>
-          </div>
         </div>
       </Card>
 
