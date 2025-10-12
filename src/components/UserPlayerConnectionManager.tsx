@@ -161,15 +161,21 @@ export function UserPlayerConnectionManager() {
                   <SelectValue placeholder="Choose a player" />
                 </SelectTrigger>
                 <SelectContent className="bg-gray-900 border-gray-700 p-2">
-                  {players.filter(p => !p.user_id).map(player => (
-                    <SelectItem 
-                      key={player.id} 
-                      value={player.id.toString()}
-                      className="text-white hover:bg-gray-800 focus:bg-gray-800 px-3 py-2 rounded cursor-pointer"
-                    >
-                      {player.username} ({player.status})
+                  {players.filter(p => !p.user_id).length > 0 ? (
+                    players.filter(p => !p.user_id).map(player => (
+                      <SelectItem 
+                        key={player.id} 
+                        value={player.id.toString()}
+                        className="text-white hover:bg-gray-800 focus:bg-gray-800 px-3 py-2 rounded cursor-pointer"
+                      >
+                        {player.username} ({player.status})
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem value="no-players" disabled className="text-gray-500 px-3 py-2 rounded">
+                      No available players
                     </SelectItem>
-                  ))}
+                  )}
                 </SelectContent>
               </Select>
             </div>
@@ -225,41 +231,55 @@ export function UserPlayerConnectionManager() {
       </div>
 
       {/* Players List */}
-      <div className="grid gap-4">
+      <div className="space-y-3">
         {filteredPlayers.map(player => {
           const connectedUser = supabaseUsers.find(u => u.id === player.user_id);
           
           return (
-            <Card key={player.id} className="bg-[#0f0f0f] border-gray-800">
-              <div className="p-4 sm:p-6">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <Card key={player.id} className="bg-[#0f0f0f] border-gray-800 hover:border-gray-700 transition-colors">
+              <div className="p-4">
+                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                   {/* Player Info */}
-                  <div className="flex items-center gap-3 sm:gap-4">
-                    <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-[#e63946]/20 flex items-center justify-center flex-shrink-0">
-                      <Gamepad2 className="h-5 w-5 sm:h-6 sm:w-6 text-[#e63946]" />
+                  <div className="flex items-start gap-3 flex-1 min-w-0">
+                    <div className="h-12 w-12 rounded-full bg-[#e63946]/20 flex items-center justify-center flex-shrink-0">
+                      {player.avatar ? (
+                        <span className="text-[#e63946] font-bold text-lg">
+                          {player.avatar}
+                        </span>
+                      ) : (
+                        <Gamepad2 className="h-6 w-6 text-[#e63946]" />
+                      )}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <h3 className="text-base sm:text-lg font-semibold text-white truncate">{player.username}</h3>
-                      <p className="text-sm text-gray-400">Status: {player.status}</p>
-                      <p className="text-xs text-gray-500">Joined: {new Date(player.join_date).toLocaleDateString()}</p>
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="text-lg font-semibold text-white truncate">{player.username}</h3>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          player.status === 'Active' ? 'bg-green-500/20 text-green-400' :
+                          player.status === 'Eliminated' ? 'bg-red-500/20 text-red-400' :
+                          'bg-yellow-500/20 text-yellow-400'
+                        }`}>
+                          {player.status}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-400">Joined: {new Date(player.join_date).toLocaleDateString()}</p>
                     </div>
                   </div>
 
                   {/* Connection Status */}
-                  <div>
+                  <div className="lg:text-right">
                     {connectedUser ? (
-                      <div className="text-left">
-                        <div className="flex items-center gap-2 text-green-400">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 text-green-400 lg:justify-end">
                           <User className="h-4 w-4" />
                           <span className="text-sm font-medium">Connected</span>
                         </div>
-                        <p className="text-sm text-gray-400 break-all sm:break-normal">{connectedUser.email}</p>
+                        <p className="text-sm text-gray-400 break-all lg:break-normal">{connectedUser.email}</p>
                         <p className="text-xs text-gray-500">
                           Connected: {new Date(connectedUser.created_at).toLocaleDateString()}
                         </p>
                       </div>
                     ) : (
-                      <div className="flex items-center gap-2 text-gray-400">
+                      <div className="flex items-center gap-2 text-gray-400 lg:justify-end">
                         <User className="h-4 w-4" />
                         <span className="text-sm">Not connected</span>
                       </div>
@@ -274,7 +294,9 @@ export function UserPlayerConnectionManager() {
 
       {filteredPlayers.length === 0 && (
         <div className="text-center py-8">
-          <div className="text-gray-400">No players found matching your search.</div>
+          <div className="text-gray-400">
+            {searchTerm ? 'No players found matching your search.' : 'No available players.'}
+          </div>
         </div>
       )}
     </div>
