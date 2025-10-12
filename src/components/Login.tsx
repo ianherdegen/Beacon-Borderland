@@ -6,6 +6,7 @@ import { Card } from './ui/card';
 import { LogIn, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 import { useUserAuth } from '../contexts/UserAuthContext';
+import { supabase } from '../lib/supabase';
 
 interface LoginProps {
   onSwitchToSignUp: () => void;
@@ -17,6 +18,7 @@ export function Login({ onSwitchToSignUp, onClose }: LoginProps) {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [forgotPasswordLoading, setForgotPasswordLoading] = useState(false);
   const { signIn } = useUserAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -34,6 +36,39 @@ export function Login({ onSwitchToSignUp, onClose }: LoginProps) {
     }
     
     setLoading(false);
+  };
+
+  const handleForgotPassword = async () => {
+    if (!email) {
+      toast.error('Please enter your email address first');
+      return;
+    }
+
+    setForgotPasswordLoading(true);
+    
+    try {
+      console.log('Sending password reset email to:', email);
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/`,
+      });
+
+      if (error) {
+        console.error('Password reset error:', error);
+        if (error.message.includes('7 seconds')) {
+          toast.error('Please wait 7 seconds before requesting another reset email.');
+        } else {
+          toast.error(`Failed to send reset email: ${error.message}`);
+        }
+      } else {
+        console.log('Password reset email sent successfully');
+        toast.success('Password reset email sent! Check your inbox.');
+      }
+    } catch (error) {
+      console.error('Password reset catch error:', error);
+      toast.error('Failed to send reset email');
+    }
+    
+    setForgotPasswordLoading(false);
   };
 
   return (
@@ -96,6 +131,17 @@ export function Login({ onSwitchToSignUp, onClose }: LoginProps) {
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
+            </div>
+
+            <div className="text-right">
+              <button
+                type="button"
+                onClick={handleForgotPassword}
+                disabled={forgotPasswordLoading}
+                className="text-sm text-[#e63946] hover:text-[#e63946]/80 font-medium"
+              >
+                {forgotPasswordLoading ? 'Sending...' : 'Reset Password'}
+              </button>
             </div>
 
             <Button

@@ -1,0 +1,21 @@
+name: Forfeit Warning Emails
+
+on:
+  schedule:
+    # Run daily at 9 AM UTC
+    - cron: '0 9 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  send-warnings:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Forfeit Warnings
+        run: |
+          curl -X POST \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Content-Type: application/json" \
+            https://${{ secrets.SUPABASE_PROJECT_REF }}.supabase.co/functions/v1/forfeit-warnings
+        env:
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}

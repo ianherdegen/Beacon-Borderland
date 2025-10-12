@@ -44,6 +44,7 @@ import { UserPlayerConnectionManager } from './components/UserPlayerConnectionMa
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { UserAuthProvider, useUserAuth } from './contexts/UserAuthContext';
 import { AdminLogin } from './components/AdminLogin';
+import { ResetPassword } from './components/ResetPassword';
 import BackgroundForfeitService from './services/background-forfeit';
 import { UserPlayerConnectionService } from './services/user-player-connection';
 import { supabase } from './lib/supabase';
@@ -274,6 +275,11 @@ function AppContent() {
     }
   };
 
+  // Check if we're on the reset password page
+  if (window.location.hash.includes('type=recovery')) {
+    return <ResetPassword />;
+  }
+
   return (
     <div className="dark size-full">
       <SidebarProvider>
@@ -329,7 +335,10 @@ function AppContent() {
                       <p className="text-xs text-[#e63946]">Admin</p>
                     )}
                   </div>
-                  <div className="h-10 w-10 rounded-full bg-gray-600 flex items-center justify-center">
+                  <button 
+                    onClick={() => setActiveItem('you')}
+                    className="h-10 w-10 rounded-full bg-gray-600 flex items-center justify-center hover:bg-gray-500 transition-colors cursor-pointer"
+                  >
                     {player?.avatar ? (
                       <span className="text-white font-semibold text-sm">
                         {player.avatar}
@@ -341,7 +350,7 @@ function AppContent() {
                     ) : (
                       <User className="h-5 w-5 text-white" />
                     )}
-                  </div>
+                  </button>
                   {/* Admin Login Icon - Show next to user profile if not admin logged in */}
                   {!isAuthenticated && (
                     <Button
