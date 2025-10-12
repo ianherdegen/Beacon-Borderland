@@ -10,6 +10,9 @@ import {
   ChevronRight,
   LogOut,
   LogIn,
+  User,
+  Link,
+  Shield,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -26,6 +29,7 @@ import {
 import { Input } from './components/ui/input';
 import { Button } from './components/ui/button';
 import { Toaster } from './components/ui/sonner';
+import { toast } from 'sonner';
 import { OverviewPage } from './components/OverviewPage';
 import { PlayersPage } from './components/PlayersPage';
 import { ArenasPage } from './components/ArenasPage';
@@ -33,9 +37,16 @@ import { GameTemplatesPage } from './components/GameTemplatesPage';
 import { ArenaGamesPage } from './components/ArenaGamesPage';
 import { ClipsMediaPage } from './components/ClipsMediaPage';
 import { ChatPage } from './components/ChatPage';
+import { YouPage } from './components/YouPage';
+import { SignUp } from './components/SignUp';
+import { Login } from './components/Login';
+import { UserPlayerConnectionManager } from './components/UserPlayerConnectionManager';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { UserAuthProvider, useUserAuth } from './contexts/UserAuthContext';
 import { AdminLogin } from './components/AdminLogin';
 import BackgroundForfeitService from './services/background-forfeit';
+import { UserPlayerConnectionService } from './services/user-player-connection';
+import { supabase } from './lib/supabase';
 
 const menuItems = [
   { icon: LayoutDashboard, label: 'Overview', id: 'overview' },
@@ -45,10 +56,26 @@ const menuItems = [
   { icon: Gamepad2, label: 'Arena Games', id: 'games' },
   { icon: Film, label: 'Clips & Media', id: 'media' },
   { icon: MessageCircle, label: 'Chat', id: 'chat' },
+  { icon: User, label: 'You', id: 'you' },
 ];
 
 function AppSidebar({ activeItem, setActiveItem }: { activeItem: string; setActiveItem: (item: string) => void }) {
   const { isAuthenticated, logout } = useAuth();
+  const { user, signOut } = useUserAuth();
+
+  // Filter menu items based on authentication
+  const visibleMenuItems = menuItems.filter(item => {
+    // Only show "You" page if user is logged in (regardless of admin status)
+    if (item.id === 'you') {
+      return !!user;
+    }
+    return true;
+  });
+
+  // Admin-only menu items
+  const adminMenuItems = [
+    { icon: Link, label: 'User Connections', id: 'user-connections' },
+  ];
 
   return (
     <Sidebar className="border-r border-gray-800">
@@ -62,7 +89,7 @@ function AppSidebar({ activeItem, setActiveItem }: { activeItem: string; setActi
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {menuItems.map((item) => (
+              {visibleMenuItems.map((item) => (
                 <SidebarMenuItem key={item.label}>
                   <SidebarMenuButton
                     onClick={() => setActiveItem(item.id)}
@@ -99,19 +126,82 @@ function AppSidebar({ activeItem, setActiveItem }: { activeItem: string; setActi
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+              
+              {/* Admin-only menu items */}
+              {isAuthenticated && (
+                <>
+                  <div className="my-4 border-t border-gray-800"></div>
+                  <div className="px-3 py-2">
+                    <p className="text-xs text-gray-500 uppercase tracking-wider">Admin</p>
+                  </div>
+                  {adminMenuItems.map((item) => (
+                    <SidebarMenuItem key={item.label}>
+                      <SidebarMenuButton
+                        onClick={() => setActiveItem(item.id)}
+                        className={`group relative transition-all duration-200 ${
+                          activeItem === item.id
+                            ? 'bg-[#e63946]/10 border-l-2 border-[#e63946]'
+                            : 'hover:bg-gray-900'
+                        }`}
+                      >
+                        <item.icon
+                          className={`h-5 w-5 transition-colors ${
+                            activeItem === item.id
+                              ? 'text-[#e63946]'
+                              : 'text-gray-400 group-hover:text-gray-200'
+                          }`}
+                          style={
+                            activeItem === item.id
+                              ? {
+                                  filter: 'drop-shadow(0 0 6px rgba(230, 57, 70, 0.6))',
+                                }
+                              : {}
+                          }
+                        />
+                        <span
+                          className={`${
+                            activeItem === item.id ? 'text-white' : 'text-gray-400 group-hover:text-gray-200'
+                          }`}
+                        >
+                          {item.label}
+                        </span>
+                        {activeItem === item.id && (
+                          <ChevronRight className="ml-auto h-4 w-4 text-[#e63946]" />
+                        )}
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </>
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-        {isAuthenticated && (
-          <div className="p-4 border-t border-gray-800">
-            <Button
-              onClick={logout}
-              variant="ghost"
-              className="w-full justify-start text-gray-400 hover:text-white hover:bg-gray-800"
-            >
-              <LogOut className="h-4 w-4 mr-2" />
-              Logout
-            </Button>
+        {/* Logout Buttons */}
+        {(user || isAuthenticated) && (
+          <div className="p-4 border-t border-gray-800 space-y-2">
+            {/* User Logout - Show if user is logged in */}
+            {user && (
+              <Button
+                onClick={signOut}
+                variant="ghost"
+                className="w-full justify-start text-gray-400 hover:text-white hover:bg-gray-800"
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Logout
+              </Button>
+            )}
+            
+            {/* Admin Logout - Show if admin is logged in */}
+            {isAuthenticated && (
+              <Button
+                onClick={logout}
+                variant="ghost"
+                className="w-full justify-start text-[#e63946] hover:text-white hover:bg-[#e63946]/10"
+              >
+                <Shield className="h-4 w-4 mr-2" />
+                Admin Logout
+              </Button>
+            )}
           </div>
         )}
       </SidebarContent>
@@ -121,7 +211,11 @@ function AppSidebar({ activeItem, setActiveItem }: { activeItem: string; setActi
 
 function AppContent() {
   const { isAuthenticated, showLogin, setShowLogin } = useAuth();
+  const { user } = useUserAuth();
   const [activeItem, setActiveItem] = useState('overview');
+  const [showUserSignUp, setShowUserSignUp] = useState(false);
+  const [showUserLogin, setShowUserLogin] = useState(false);
+  const [player, setPlayer] = useState(null);
 
   // Start background forfeit service when app loads
   useEffect(() => {
@@ -132,6 +226,20 @@ function AppContent() {
       BackgroundForfeitService.stop();
     };
   }, []);
+
+  // Load player data when user changes
+  useEffect(() => {
+    const loadPlayerData = async () => {
+      if (user) {
+        const playerData = await UserPlayerConnectionService.getPlayerByUserId(user.id);
+        setPlayer(playerData);
+      } else {
+        setPlayer(null);
+      }
+    };
+    loadPlayerData();
+  }, [user]);
+
 
   const renderPage = () => {
     switch (activeItem) {
@@ -149,6 +257,18 @@ function AppContent() {
         return <ClipsMediaPage />;
       case 'chat':
         return <ChatPage />;
+      case 'you':
+        // Only show You page if user is logged in
+        if (!user) {
+          return <OverviewPage onNavigate={setActiveItem} />;
+        }
+        return <YouPage />;
+      case 'user-connections':
+        // Only show User Connections page if admin is authenticated
+        if (!isAuthenticated) {
+          return <OverviewPage onNavigate={setActiveItem} />;
+        }
+        return <UserPlayerConnectionManager />;
       default:
         return <OverviewPage onNavigate={setActiveItem} />;
     }
@@ -163,27 +283,77 @@ function AppContent() {
             <SidebarTrigger className="text-gray-400 hover:text-white" />
             <div className="flex-1" />
             <div className="flex items-center gap-3">
-              {!isAuthenticated && (
+              {/* User Authentication Buttons */}
+              {!user && (
+                <>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowUserLogin(true)}
+                    className="text-gray-400 hover:text-white border-gray-700 hover:border-gray-600"
+                  >
+                    <LogIn className="h-4 w-4 mr-2" />
+                    Sign In
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowUserSignUp(true)}
+                    className="text-gray-400 hover:text-white border-gray-700 hover:border-gray-600"
+                  >
+                    <User className="h-4 w-4 mr-2" />
+                    Sign Up
+                  </Button>
+                </>
+              )}
+
+              {/* Admin Login Icon - Show when no user is logged in */}
+              {!user && !isAuthenticated && (
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => setShowLogin(true)}
-                  className="text-gray-400 hover:text-white border-gray-700 hover:border-gray-600"
+                  className="text-gray-400 hover:text-white border-gray-700 hover:border-gray-600 p-2"
                 >
-                  <LogIn className="h-4 w-4 mr-2" />
-                  Admin Login
+                  <Shield className="h-4 w-4" />
                 </Button>
               )}
-              {isAuthenticated && (
-                <>
+
+              {/* User Profile - Show for all logged in users */}
+              {user && (
+                <div className="flex items-center gap-3">
                   <div className="text-right">
-                    <p className="text-sm text-white">Game Master</p>
-                    <p className="text-xs text-gray-500">Administrator</p>
+                    <p className="text-sm text-white">{player?.username || user.email}</p>
+                    <p className="text-xs text-gray-500">{user.email}</p>
+                    {isAuthenticated && (
+                      <p className="text-xs text-[#e63946]">Admin</p>
+                    )}
                   </div>
-                  <div className="h-10 w-10 rounded-full bg-[#e63946] flex items-center justify-center" style={{ boxShadow: '0 0 15px rgba(230, 57, 70, 0.5)' }}>
-                    <span className="text-white">♠</span>
+                  <div className="h-10 w-10 rounded-full bg-gray-600 flex items-center justify-center">
+                    {player?.avatar ? (
+                      <span className="text-white font-semibold text-sm">
+                        {player.avatar}
+                      </span>
+                    ) : player?.username ? (
+                      <span className="text-white font-semibold text-sm">
+                        {player.username.charAt(0).toUpperCase()}
+                      </span>
+                    ) : (
+                      <User className="h-5 w-5 text-white" />
+                    )}
                   </div>
-                </>
+                  {/* Admin Login Icon - Show next to user profile if not admin logged in */}
+                  {!isAuthenticated && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowLogin(true)}
+                      className="text-gray-400 hover:text-white border-gray-700 hover:border-gray-600 p-2"
+                    >
+                      <Shield className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
               )}
             </div>
           </header>
@@ -198,25 +368,43 @@ function AppContent() {
       {/* Global Admin Login Dialog */}
       {showLogin && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-          <div className="relative animate-in fade-in-0 zoom-in-95 duration-200">
-            <button
-              onClick={() => setShowLogin(false)}
-              className="absolute -top-3 -right-3 z-10 h-8 w-8 rounded-full bg-gray-800 text-white hover:bg-gray-700 hover:scale-110 flex items-center justify-center transition-all duration-200 shadow-lg border border-gray-600"
-            >
-              ×
-            </button>
-            <AdminLogin />
-          </div>
+          <AdminLogin />
         </div>
+      )}
+
+      {/* User Sign Up Modal */}
+      {showUserSignUp && (
+        <SignUp
+          onSwitchToLogin={() => {
+            setShowUserSignUp(false);
+            setShowUserLogin(true);
+          }}
+          onClose={() => setShowUserSignUp(false)}
+        />
+      )}
+
+      {/* User Login Modal */}
+      {showUserLogin && (
+        <Login
+          onSwitchToSignUp={() => {
+            setShowUserLogin(false);
+            setShowUserSignUp(true);
+          }}
+          onClose={() => setShowUserLogin(false)}
+        />
       )}
     </div>
   );
 }
 
-export default function App() {
+const App = () => {
   return (
     <AuthProvider>
-      <AppContent />
+      <UserAuthProvider>
+        <AppContent />
+      </UserAuthProvider>
     </AuthProvider>
   );
-}
+};
+
+export default App;

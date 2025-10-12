@@ -1,5 +1,5 @@
 -- =====================================================
--- BORDERLAND MAKE - COMPLETE SUPABASE SCHEMA
+-- BORDERLAND - COMPLETE SUPABASE SCHEMA
 -- =====================================================
 
 -- =====================================================
@@ -406,7 +406,7 @@ LEFT JOIN (
 -- =====================================================
 DO $$
 BEGIN
-  RAISE NOTICE 'Borderland Make database schema created successfully!';
+  RAISE NOTICE 'Borderland database schema created successfully!';
   RAISE NOTICE 'Tables created: game_templates, players, beacons, beacon_games, beacon_game_players';
   RAISE NOTICE 'Sample data inserted for all tables';
   RAISE NOTICE 'Indexes, triggers, and RLS policies configured';

@@ -35,73 +35,77 @@ export const AdminLogin: React.FC = () => {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto">
-      <div className="bg-gray-900 border border-gray-700 rounded-xl shadow-xl overflow-hidden">
-        {/* Header Section */}
-        <div className="text-center py-8 px-6 bg-gray-800">
-          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-[#e63946] shadow-lg">
-            <Lock className="h-8 w-8 text-white" />
+    <Card className="w-full max-w-xs sm:max-w-sm bg-[#0f0f0f] border-gray-800">
+      <div className="p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-lg bg-[#e63946]/10 flex items-center justify-center">
+              <Lock className="h-5 w-5 text-[#e63946]" style={{ filter: 'drop-shadow(0 0 6px rgba(230, 57, 70, 0.6))' }} />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-white">Admin Login</h2>
+              <p className="text-sm text-gray-400">Access management features</p>
+            </div>
           </div>
-          <h1 className="text-xl font-bold text-white mb-2">Admin Access</h1>
-          <p className="text-gray-400 text-sm">
-            Enter your password to access management features
-          </p>
+          <button
+            onClick={() => setShowLogin(false)}
+            className="text-gray-400 hover:text-white transition-colors"
+          >
+            ×
+          </button>
         </div>
 
-        {/* Form Section */}
-        <div className="px-6 py-6">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="password" className="text-gray-300 font-medium text-sm">
-                Password
-              </Label>
-              <div className="relative">
-                <Input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter admin password"
-                  className="w-full h-10 pl-3 pr-10 bg-gray-800 border border-gray-600 rounded-md text-white placeholder:text-gray-500 focus:border-[#e63946] focus:ring-1 focus:ring-[#e63946] transition-all duration-200"
-                  required
-                />
-                <button
-                  type="button"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-200 transition-colors"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
-                </button>
-              </div>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-2">
+            <Label htmlFor="password" className="text-gray-300 font-medium text-sm">
+              Password
+            </Label>
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter admin password"
+                className="w-full h-10 pl-3 pr-10 bg-gray-800 border border-gray-600 rounded-md text-white placeholder:text-gray-500 focus:border-[#e63946] focus:ring-1 focus:ring-[#e63946] transition-all duration-200"
+                required
+              />
+              <button
+                type="button"
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-200 transition-colors"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+              </button>
             </div>
-            
-            {error && (
-              <div className="bg-red-500/10 border border-red-500/30 rounded-md p-3">
-                <p className="text-red-400 text-sm">{error}</p>
+          </div>
+          
+          {error && (
+            <div className="bg-red-500/10 border border-red-500/30 rounded-md p-3">
+              <p className="text-red-400 text-sm">{error}</p>
+            </div>
+          )}
+          
+          <Button
+            type="submit"
+            className="w-full h-10 bg-[#e63946] hover:bg-[#d62828] text-white font-medium transition-colors duration-200"
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <div className="flex items-center gap-2">
+                <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                Signing in...
               </div>
+            ) : (
+              'Sign In'
             )}
-            
-            <button
-              type="submit"
-              className="w-full h-10 bg-[#e63946] hover:bg-[#d62828] text-white font-medium rounded-md transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <div className="flex items-center gap-2">
-                  <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Signing in...
-                </div>
-              ) : (
-                'Sign In'
-              )}
-            </button>
-          </form>
-        </div>
+          </Button>
+        </form>
       </div>
-    </div>
+    </Card>
   );
 };

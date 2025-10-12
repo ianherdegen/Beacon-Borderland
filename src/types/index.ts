@@ -1,5 +1,5 @@
 // =====================================================
-// BORDERLAND MAKE - TYPESCRIPT TYPES
+// BORDERLAND - TYPESCRIPT TYPES
 // =====================================================
 
 // =====================================================
@@ -44,6 +44,7 @@ export interface Player {
   join_date: string;
   avatar: string | null;
   bio: string | null;
+  user_id: string | null; // UUID from Supabase auth.users
   created_at: string;
   updated_at: string;
 }

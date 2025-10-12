@@ -1,7 +1,7 @@
 
-  # Borderland Make
+  # Borderland
 
-  This is a code bundle for Borderland Make. The original project is available at https://www.figma.com/design/JwsehGvJksHQDumQ7Hh0Wk/Borderland-Make.
+  This is a code bundle for Borderland. The original project is available at https://www.figma.com/design/JwsehGvJksHQDumQ7Hh0Wk/Borderland-Make.
 
   ## Running the code
 

@@ -1,5 +1,5 @@
 // =====================================================
-// BORDERLAND MAKE - SERVICES INDEX
+// BORDERLAND - SERVICES INDEX
 // =====================================================
 
 // Export all services
