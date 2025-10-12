@@ -133,7 +133,8 @@ export function Login({ onSwitchToSignUp, onClose }: LoginProps) {
               </div>
             </div>
 
-            <div className="text-right">
+            {/* Temporarily hidden - reset password functionality */}
+            {/* <div className="text-right">
               <button
                 type="button"
                 onClick={handleForgotPassword}
@@ -142,7 +143,7 @@ export function Login({ onSwitchToSignUp, onClose }: LoginProps) {
               >
                 {forgotPasswordLoading ? 'Sending...' : 'Reset Password'}
               </button>
-            </div>
+            </div> */}
 
             <Button
               type="submit"

@@ -276,7 +276,19 @@ function AppContent() {
   };
 
   // Check if we're on the reset password page
-  if (window.location.hash.includes('type=recovery')) {
+  const hash = window.location.hash;
+  const search = window.location.search;
+  
+  // Debug logging
+  console.log('Current URL:', window.location.href);
+  console.log('Hash:', hash);
+  console.log('Search:', search);
+  
+  if (hash.includes('type=recovery') || 
+      hash.includes('access_token') || 
+      search.includes('type=recovery') ||
+      search.includes('access_token')) {
+    console.log('Detected password reset - showing ResetPassword component');
     return <ResetPassword />;
   }
 
