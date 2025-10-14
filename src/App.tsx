@@ -277,7 +277,7 @@ function AppContent() {
     }
   };
 
-  // Check if we're on the reset password page (not email confirmation)
+  // Check URL for special flows
   const hash = window.location.hash;
   const search = window.location.search;
   
@@ -285,13 +285,6 @@ function AppContent() {
   console.log('Current URL:', window.location.href);
   console.log('Hash:', hash);
   console.log('Search:', search);
-  
-  // Only show ResetPassword for actual password recovery, not email confirmations
-  if ((hash.includes('type=recovery') || search.includes('type=recovery')) && 
-      (hash.includes('access_token') || search.includes('access_token'))) {
-    console.log('Detected password reset - showing ResetPassword component');
-    return <ResetPassword />;
-  }
 
   // Handle email confirmation - show brief success message
   if ((hash.includes('type=signup') || search.includes('type=signup')) && 
@@ -313,6 +306,13 @@ function AppContent() {
         </Card>
       </div>
     );
+  }
+
+  // Handle password reset - redirect to You page
+  if (hash.includes('reset-password') && hash.includes('access_token')) {
+    console.log('Detected password reset - redirecting to You page...');
+    // Set active item to 'you' and let the YouPage handle the reset
+    setActiveItem('you');
   }
 
   return (

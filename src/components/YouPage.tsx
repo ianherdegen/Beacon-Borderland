@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Card } from './ui/card';
 import { Button } from './ui/button';
-import { User, Mail, LogOut, Gamepad2, Calendar, Clock, UserCircle, FileText, Trophy, Target } from 'lucide-react';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
+import { User, Mail, LogOut, Gamepad2, Calendar, Clock, UserCircle, FileText, Trophy, Target, Lock, Eye, EyeOff, CheckCircle } from 'lucide-react';
 import { useUserAuth } from '../contexts/UserAuthContext';
 import { UserPlayerConnectionService } from '../services/user-player-connection';
 import { Player } from '../types';
 import { PlayersService } from '../services/players';
 import { Badge } from './ui/badge';
+import { toast } from 'sonner';
+import { supabase } from '../lib/supabase';
 
 // Helper function to format time ago
 const formatTimeAgo = (dateString: string | null): string => {
@@ -60,10 +64,29 @@ export function YouPage() {
   }>>([]);
   const [loadingGameHistory, setLoadingGameHistory] = useState(false);
   const [countdownTime, setCountdownTime] = useState(new Date());
+  
+  // Password reset state
+  const [showPasswordReset, setShowPasswordReset] = useState(false);
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [passwordSuccess, setPasswordSuccess] = useState(false);
 
   useEffect(() => {
     loadPlayerProfile();
   }, [user]);
+
+  // Check if user came from password reset link
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash.includes('reset-password') && hash.includes('access_token')) {
+      setShowPasswordReset(true);
+      // Clear the hash to clean up the URL
+      window.history.replaceState(null, '', window.location.pathname);
+    }
+  }, []);
 
   // Update countdown timer every second
   useEffect(() => {
@@ -105,6 +128,46 @@ export function YouPage() {
     await signOut();
   };
 
+  const handlePasswordReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (password !== confirmPassword) {
+      toast.error('Passwords do not match');
+      return;
+    }
+    
+    if (password.length < 6) {
+      toast.error('Password must be at least 6 characters');
+      return;
+    }
+    
+    setPasswordLoading(true);
+    
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: password
+      });
+
+      if (error) {
+        toast.error('Failed to update password');
+      } else {
+        setPasswordSuccess(true);
+        toast.success('Password updated successfully!');
+        // Hide the form after success
+        setTimeout(() => {
+          setShowPasswordReset(false);
+          setPasswordSuccess(false);
+          setPassword('');
+          setConfirmPassword('');
+        }, 2000);
+      }
+    } catch (error) {
+      toast.error('Failed to update password');
+    }
+    
+    setPasswordLoading(false);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -117,6 +180,101 @@ export function YouPage() {
           <p className="text-gray-400">Your account information</p>
         </div>
       </div>
+
+      {/* Password Reset Form */}
+      {showPasswordReset && (
+        <Card className="bg-[#0f0f0f] border-gray-800">
+          <div className="p-6">
+            {passwordSuccess ? (
+              <div className="text-center">
+                <div className="h-12 w-12 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="h-6 w-6 text-green-500" />
+                </div>
+                <h2 className="text-xl font-bold text-white mb-2">Password Updated!</h2>
+                <p className="text-gray-400">Your password has been successfully updated.</p>
+              </div>
+            ) : (
+              <div>
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="h-10 w-10 rounded-lg bg-[#e63946]/10 flex items-center justify-center">
+                    <Lock className="h-5 w-5 text-[#e63946]" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold text-white">Reset Password</h2>
+                    <p className="text-gray-400">Set a new password for your account</p>
+                  </div>
+                </div>
+
+                <form onSubmit={handlePasswordReset} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="new-password" className="text-white">New Password</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      <Input
+                        id="new-password"
+                        type={showPassword ? 'text' : 'password'}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="Enter new password"
+                        className="pl-10 pr-10 bg-gray-900 border-gray-700 text-white"
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="confirm-new-password" className="text-white">Confirm New Password</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      <Input
+                        id="confirm-new-password"
+                        type={showConfirmPassword ? 'text' : 'password'}
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        placeholder="Confirm new password"
+                        className="pl-10 pr-10 bg-gray-900 border-gray-700 text-white"
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
+                      >
+                        {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <Button
+                      type="submit"
+                      disabled={passwordLoading}
+                      className="flex-1 bg-[#e63946] hover:bg-[#e63946]/80"
+                    >
+                      {passwordLoading ? 'Updating...' : 'Update Password'}
+                    </Button>
+                    <Button
+                      type="button"
+                      onClick={() => setShowPasswordReset(false)}
+                      variant="outline"
+                      className="border-gray-700 text-gray-400 hover:bg-gray-800 hover:text-white"
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </form>
+              </div>
+            )}
+          </div>
+        </Card>
+      )}
 
       {/* User Info Card */}
       <Card className="bg-[#0f0f0f] border-gray-800">
