@@ -194,7 +194,20 @@ export function ArenaGamesPage() {
     return storedNames.map(storedName => nameMapping[storedName] || storedName);
   };
 
-  // Better approach: Get current usernames based on player outcomes in arena_game_players
+  // Get current usernames from player IDs stored in outcome field
+  const getCurrentUsernamesFromPlayerIds = (playerIds: string[], game: ArenaGameDisplay): string[] => {
+    if (!game.originalPlayers || game.originalPlayers.length === 0) {
+      return playerIds; // Fallback to IDs if no player data
+    }
+
+    // Map player IDs to current usernames
+    return playerIds.map(playerId => {
+      const player = game.originalPlayers.find(p => p.player_id.toString() === playerId);
+      return player ? (player.player_username || `Player ${player.player_id}`) : `Player ${playerId}`;
+    });
+  };
+
+  // Legacy function for backward compatibility with old data that stores usernames
   const getCurrentUsernamesFromOutcomes = (outcomeType: 'winners' | 'eliminated', game: ArenaGameDisplay): string[] => {
     if (!game.originalPlayers || game.originalPlayers.length === 0) {
       return game.outcome[outcomeType] || []; // Fallback to stored names
@@ -251,9 +264,22 @@ export function ArenaGamesPage() {
     }
 
     if (game.templateType === 'Versus' && game.outcome.winners && game.outcome.eliminated) {
-      // Get current usernames for winners and eliminated players using player outcomes
-      const currentWinners = getCurrentUsernamesFromOutcomes('winners', game);
-      const currentEliminated = getCurrentUsernamesFromOutcomes('eliminated', game);
+      // Check if outcome contains player IDs (new format) or usernames (legacy format)
+      const isNewFormat = game.outcome.winners.length > 0 && 
+        game.outcome.winners.every((id: string) => /^\d+$/.test(id));
+      
+      let currentWinners: string[];
+      let currentEliminated: string[];
+      
+      if (isNewFormat) {
+        // New format: outcome contains player IDs
+        currentWinners = getCurrentUsernamesFromPlayerIds(game.outcome.winners, game);
+        currentEliminated = getCurrentUsernamesFromPlayerIds(game.outcome.eliminated, game);
+      } else {
+        // Legacy format: outcome contains usernames, use player outcomes
+        currentWinners = getCurrentUsernamesFromOutcomes('winners', game);
+        currentEliminated = getCurrentUsernamesFromOutcomes('eliminated', game);
+      }
       
       return (
         <Card className="p-4 bg-gray-950 border-gray-800">

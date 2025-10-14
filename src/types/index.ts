@@ -104,8 +104,8 @@ export interface ArenaDetails extends Arena {
 // =====================================================
 export interface GameOutcome {
   result?: 'won' | 'eliminated';
-  winners?: string[];
-  eliminated?: string[];
+  winners?: string[]; // Now stores player IDs as strings instead of usernames
+  eliminated?: string[]; // Now stores player IDs as strings instead of usernames
 }
 
 export interface ArenaGame {

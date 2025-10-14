@@ -871,15 +871,44 @@ export function ArenasPage() {
       let outcomeData: any = {};
       
       if (templateType?.toLowerCase() === 'versus' && versusOutcomes) {
-        // For versus games, create winners and eliminated arrays
+        // For versus games, create winners and eliminated arrays with player IDs
         const winners: string[] = [];
         const eliminated: string[] = [];
         
+        // Get player data to map names to IDs
+        const { data: gamePlayers, error: playersError } = await supabase
+          .from('arena_game_players')
+          .select(`
+            id,
+            player_id,
+            players!inner(username)
+          `)
+          .eq('arena_game_id', gameId);
+        
+        if (playersError) {
+          console.error('Error fetching game players for outcome:', playersError);
+          toast.error('Failed to fetch game players');
+          return;
+        }
+        
+        // Create mapping of usernames to player IDs
+        const nameToIdMap: { [key: string]: string } = {};
+        gamePlayers?.forEach(player => {
+          if (player.players?.username) {
+            nameToIdMap[player.players.username] = player.player_id.toString();
+          }
+        });
+        
         for (const [playerName, outcome] of Object.entries(versusOutcomes)) {
-          if (outcome === 'win') {
-            winners.push(playerName);
+          const playerId = nameToIdMap[playerName];
+          if (playerId) {
+            if (outcome === 'win') {
+              winners.push(playerId);
+            } else {
+              eliminated.push(playerId);
+            }
           } else {
-            eliminated.push(playerName);
+            console.warn(`Could not find player ID for username: ${playerName}`);
           }
         }
         
