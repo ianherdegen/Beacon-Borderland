@@ -186,7 +186,7 @@ export function YouPage() {
       {/* Password Change Modal */}
       {showPasswordReset && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-          <Card className="w-full max-w-md bg-[#0f0f0f] border-gray-800">
+          <Card className="w-full max-w-xs sm:max-w-sm bg-[#0f0f0f] border-gray-800">
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
