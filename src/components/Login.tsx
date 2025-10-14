@@ -44,28 +44,35 @@ export function Login({ onSwitchToSignUp, onClose }: LoginProps) {
       return;
     }
 
+    if (!email.includes('@')) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+
     setForgotPasswordLoading(true);
     
     try {
       console.log('Sending password reset email to:', email);
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/`,
+        redirectTo: `${window.location.origin}/#type=recovery`,
       });
 
       if (error) {
         console.error('Password reset error:', error);
         if (error.message.includes('7 seconds')) {
           toast.error('Please wait 7 seconds before requesting another reset email.');
+        } else if (error.message.includes('not found') || error.message.includes('does not exist')) {
+          toast.error('No account found with this email address.');
         } else {
           toast.error(`Failed to send reset email: ${error.message}`);
         }
       } else {
         console.log('Password reset email sent successfully');
-        toast.success('Password reset email sent! Check your inbox.');
+        toast.success('Password reset email sent! Check your inbox and spam folder.');
       }
     } catch (error) {
       console.error('Password reset catch error:', error);
-      toast.error('Failed to send reset email');
+      toast.error('Failed to send reset email. Please try again.');
     }
     
     setForgotPasswordLoading(false);
@@ -133,17 +140,16 @@ export function Login({ onSwitchToSignUp, onClose }: LoginProps) {
               </div>
             </div>
 
-            {/* Temporarily hidden - reset password functionality */}
-            {/* <div className="text-right">
+            <div className="text-right">
               <button
                 type="button"
                 onClick={handleForgotPassword}
                 disabled={forgotPasswordLoading}
-                className="text-sm text-[#e63946] hover:text-[#e63946]/80 font-medium"
+                className="text-sm text-[#e63946] hover:text-[#e63946]/80 font-medium disabled:opacity-50"
               >
-                {forgotPasswordLoading ? 'Sending...' : 'Reset Password'}
+                {forgotPasswordLoading ? 'Sending...' : 'Forgot Password?'}
               </button>
-            </div> */}
+            </div>
 
             <Button
               type="submit"
