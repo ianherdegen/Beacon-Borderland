@@ -159,6 +159,62 @@ export function ArenaGamesPage() {
     return 'bg-green-500/20 text-green-400 border-green-500/50';
   };
 
+  // Helper function to map stored player names to current usernames
+  const getCurrentUsernames = (storedNames: string[], game: ArenaGameDisplay): string[] => {
+    if (!game.originalPlayers || game.originalPlayers.length === 0) {
+      return storedNames; // Fallback to stored names if no player data
+    }
+
+    // Create a mapping of stored names to current usernames
+    const nameMapping: { [key: string]: string } = {};
+    
+    // For each original player, try to match stored names with current usernames
+    game.originalPlayers.forEach(player => {
+      const currentUsername = player.player_username;
+      if (currentUsername) {
+        // Try exact match first
+        if (storedNames.includes(currentUsername)) {
+          nameMapping[currentUsername] = currentUsername;
+        } else {
+          // Try to find a stored name that might be an old username
+          // This is a fallback - ideally we'd store player IDs instead of names
+          const matchingStoredName = storedNames.find(storedName => 
+            storedName.toLowerCase() === currentUsername.toLowerCase() ||
+            storedName.includes(currentUsername) ||
+            currentUsername.includes(storedName)
+          );
+          if (matchingStoredName) {
+            nameMapping[matchingStoredName] = currentUsername;
+          }
+        }
+      }
+    });
+
+    // Map stored names to current usernames, fallback to stored name if no mapping found
+    return storedNames.map(storedName => nameMapping[storedName] || storedName);
+  };
+
+  // Better approach: Get current usernames based on player outcomes in arena_game_players
+  const getCurrentUsernamesFromOutcomes = (outcomeType: 'winners' | 'eliminated', game: ArenaGameDisplay): string[] => {
+    if (!game.originalPlayers || game.originalPlayers.length === 0) {
+      return game.outcome[outcomeType] || []; // Fallback to stored names
+    }
+
+    // Get players with the matching outcome from arena_game_players
+    const playersWithOutcome = game.originalPlayers.filter(player => {
+      if (outcomeType === 'winners') {
+        return player.player_outcome === 'win';
+      } else {
+        return player.player_outcome === 'eliminated';
+      }
+    });
+
+    // Return current usernames
+    return playersWithOutcome
+      .map(player => player.player_username || `Player ${player.player_id}`)
+      .filter(username => username); // Remove any null/undefined usernames
+  };
+
   const renderOutcome = (game: ArenaGameDisplay) => {
     if (!game.outcome) return null;
 
@@ -195,6 +251,10 @@ export function ArenaGamesPage() {
     }
 
     if (game.templateType === 'Versus' && game.outcome.winners && game.outcome.eliminated) {
+      // Get current usernames for winners and eliminated players using player outcomes
+      const currentWinners = getCurrentUsernamesFromOutcomes('winners', game);
+      const currentEliminated = getCurrentUsernamesFromOutcomes('eliminated', game);
+      
       return (
         <Card className="p-4 bg-gray-950 border-gray-800">
           <div className="flex items-center gap-2 mb-3">
@@ -203,11 +263,11 @@ export function ArenaGamesPage() {
           </div>
           
           {/* Winners */}
-          {game.outcome.winners.length > 0 && (
+          {currentWinners.length > 0 && (
             <div className="mb-3">
-              <h4 className="text-green-400 text-sm mb-2">Winners ({game.outcome.winners.length})</h4>
+              <h4 className="text-green-400 text-sm mb-2">Winners ({currentWinners.length})</h4>
               <div className="flex flex-wrap gap-2">
-                {game.outcome.winners.map((winner: string, index: number) => (
+                {currentWinners.map((winner: string, index: number) => (
                   <Badge key={index} className="bg-green-500/20 text-green-400 border-green-500/50">
                     {winner}
                   </Badge>
@@ -217,11 +277,11 @@ export function ArenaGamesPage() {
           )}
 
           {/* Eliminated */}
-          {game.outcome.eliminated.length > 0 && (
+          {currentEliminated.length > 0 && (
             <div>
-              <h4 className="text-red-400 text-sm mb-2">Eliminated ({game.outcome.eliminated.length})</h4>
+              <h4 className="text-red-400 text-sm mb-2">Eliminated ({currentEliminated.length})</h4>
               <div className="flex flex-wrap gap-2">
-                {game.outcome.eliminated.map((eliminated: string, index: number) => (
+                {currentEliminated.map((eliminated: string, index: number) => (
                   <Badge key={index} className="bg-red-500/20 text-red-400 border-red-500/50">
                     {eliminated}
                   </Badge>
@@ -231,7 +291,7 @@ export function ArenaGamesPage() {
           )}
 
           {/* Show message if no outcomes are set yet */}
-          {game.outcome.winners.length === 0 && game.outcome.eliminated.length === 0 && (
+          {currentWinners.length === 0 && currentEliminated.length === 0 && (
             <div className="text-center py-4">
               <p className="text-gray-400 text-sm">Game outcomes not yet determined</p>
             </div>
