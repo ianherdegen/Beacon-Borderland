@@ -458,11 +458,9 @@ function AppContent() {
                 <div className="h-4 w-4 flex items-center justify-center">
                   <div className="relative">
                     {/* Beacon tower */}
-                    <div className="w-1 h-3 bg-gradient-to-b from-yellow-400 to-orange-500 rounded-sm"></div>
+                    <div className="w-1 h-3 bg-gray-400 rounded-sm"></div>
                     {/* Beacon light */}
-                    <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gradient-to-b from-yellow-300 to-red-500 rounded-full animate-pulse"></div>
-                    {/* Light rays */}
-                    <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-3 h-1 bg-gradient-to-r from-transparent via-yellow-300 to-transparent opacity-60"></div>
+                    <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-300 rounded-full"></div>
                   </div>
                 </div>
               </Button>
