@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
@@ -18,7 +18,56 @@ export function SignUp({ onSwitchToLogin, onClose }: SignUpProps) {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { signUp } = useUserAuth();
+  const [emailValidation, setEmailValidation] = useState<{
+    checking: boolean;
+    exists: boolean | null;
+    message: string;
+  }>({ checking: false, exists: null, message: '' });
+  const { signUp, checkUserExists } = useUserAuth();
+  
+  // Use useRef to store the timeout ID for proper cleanup
+  const validationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Debounced email validation
+  const validateEmail = async (email: string) => {
+    if (!email || !email.includes('@')) {
+      setEmailValidation({ checking: false, exists: null, message: '' });
+      return;
+    }
+
+    setEmailValidation({ checking: true, exists: null, message: '' });
+    
+    const result = await checkUserExists(email);
+    
+    if (result.error) {
+      setEmailValidation({ checking: false, exists: null, message: 'Error checking email' });
+      return;
+    }
+
+    if (result.exists) {
+      setEmailValidation({ checking: false, exists: true, message: 'This email is already registered' });
+    } else {
+      setEmailValidation({ checking: false, exists: false, message: 'Email is available' });
+    }
+  };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newEmail = e.target.value;
+    setEmail(newEmail);
+    
+    // Clear previous validation
+    setEmailValidation({ checking: false, exists: null, message: '' });
+    
+    // Clear any existing timeout
+    if (validationTimeoutRef.current) {
+      clearTimeout(validationTimeoutRef.current);
+    }
+    
+    // Set new timeout for validation
+    validationTimeoutRef.current = setTimeout(() => {
+      validateEmail(newEmail);
+    }, 500);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,6 +80,30 @@ export function SignUp({ onSwitchToLogin, onClose }: SignUpProps) {
     if (password.length < 6) {
       toast.error('Password must be at least 6 characters');
       return;
+    }
+
+    // Check if email already exists
+    if (emailValidation.exists === true) {
+      toast.error('This email is already registered. Please use a different email or sign in.');
+      return;
+    }
+
+    // If we haven't validated the email yet, do it now
+    if (emailValidation.exists === null) {
+      setEmailValidation({ checking: true, exists: null, message: 'Checking email...' });
+      const result = await checkUserExists(email);
+      
+      if (result.error) {
+        toast.error('Error checking email. Please try again.');
+        setEmailValidation({ checking: false, exists: null, message: '' });
+        return;
+      }
+
+      if (result.exists) {
+        setEmailValidation({ checking: false, exists: true, message: 'This email is already registered' });
+        toast.error('This email is already registered. Please use a different email or sign in.');
+        return;
+      }
     }
 
     setLoading(true);
@@ -78,12 +151,28 @@ export function SignUp({ onSwitchToLogin, onClose }: SignUpProps) {
                   id="email"
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={handleEmailChange}
                   placeholder="Enter your email"
-                  className="pl-10 bg-gray-900 border-gray-700 text-white"
+                  className={`pl-10 bg-gray-900 border-gray-700 text-white ${
+                    emailValidation.exists === true ? 'border-red-500' : 
+                    emailValidation.exists === false ? 'border-green-500' : ''
+                  }`}
                   required
                 />
+                {emailValidation.checking && (
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#e63946]"></div>
+                  </div>
+                )}
               </div>
+              {emailValidation.message && (
+                <p className={`text-xs ${
+                  emailValidation.exists === true ? 'text-red-400' : 
+                  emailValidation.exists === false ? 'text-green-400' : 'text-gray-400'
+                }`}>
+                  {emailValidation.message}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -127,10 +216,12 @@ export function SignUp({ onSwitchToLogin, onClose }: SignUpProps) {
 
             <Button
               type="submit"
-              disabled={loading}
-              className="w-full bg-[#e63946] hover:bg-[#e63946]/80"
+              disabled={loading || emailValidation.checking || emailValidation.exists === true}
+              className="w-full bg-[#e63946] hover:bg-[#e63946]/80 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Creating Account...' : 'Sign Up'}
+              {loading ? 'Creating Account...' : 
+               emailValidation.checking ? 'Checking Email...' : 
+               emailValidation.exists === true ? 'Email Already Exists' : 'Sign Up'}
             </Button>
           </form>
 
