@@ -13,6 +13,7 @@ import {
   User,
   Link,
   Shield,
+  CheckCircle,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -28,6 +29,7 @@ import {
 } from './components/ui/sidebar';
 import { Input } from './components/ui/input';
 import { Button } from './components/ui/button';
+import { Card } from './components/ui/card';
 import { Toaster } from './components/ui/sonner';
 import { toast } from 'sonner';
 import { OverviewPage } from './components/OverviewPage';
@@ -275,7 +277,7 @@ function AppContent() {
     }
   };
 
-  // Check if we're on the reset password page
+  // Check if we're on the reset password page (not email confirmation)
   const hash = window.location.hash;
   const search = window.location.search;
   
@@ -284,12 +286,33 @@ function AppContent() {
   console.log('Hash:', hash);
   console.log('Search:', search);
   
-  if (hash.includes('type=recovery') || 
-      hash.includes('access_token') || 
-      search.includes('type=recovery') ||
-      search.includes('access_token')) {
+  // Only show ResetPassword for actual password recovery, not email confirmations
+  if ((hash.includes('type=recovery') || search.includes('type=recovery')) && 
+      (hash.includes('access_token') || search.includes('access_token'))) {
     console.log('Detected password reset - showing ResetPassword component');
     return <ResetPassword />;
+  }
+
+  // Handle email confirmation - show brief success message
+  if ((hash.includes('type=signup') || search.includes('type=signup')) && 
+      (hash.includes('access_token') || search.includes('access_token'))) {
+    console.log('Detected email confirmation - processing...');
+    // The UserAuthContext will handle the session automatically
+    // We'll show a brief success message and then redirect
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+        <Card className="w-full max-w-sm bg-[#0f0f0f] border-gray-800 p-6">
+          <div className="text-center">
+            <div className="h-12 w-12 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-4">
+              <CheckCircle className="h-6 w-6 text-green-500" />
+            </div>
+            <h2 className="text-xl font-bold text-white mb-2">Email Confirmed!</h2>
+            <p className="text-gray-400 mb-4">Your account has been verified. Redirecting...</p>
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#e63946] mx-auto"></div>
+          </div>
+        </Card>
+      </div>
+    );
   }
 
   return (
