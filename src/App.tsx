@@ -455,7 +455,7 @@ function AppContent() {
                 className="text-gray-400 hover:text-white border-gray-700 hover:border-gray-600 p-2"
                 title="Visit The Beacon HQ"
               >
-                <span className="text-lg">📡</span>
+                <span className="text-sm">📡</span>
               </Button>
             </div>
           </header>
