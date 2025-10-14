@@ -255,7 +255,7 @@ export function UserPlayerConnectionManager() {
                         <h3 className="text-lg font-semibold text-white truncate">{player.username}</h3>
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                           player.status === 'Active' ? 'bg-green-500/20 text-green-400' :
-                          player.status === 'Eliminated' ? 'bg-red-500/20 text-red-400' :
+                          player.status === 'Eliminated' ? 'bg-orange-500/20 text-orange-400' :
                           'bg-yellow-500/20 text-yellow-400'
                         }`}>
                           {player.status}
