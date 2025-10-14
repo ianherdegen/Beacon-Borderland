@@ -220,6 +220,61 @@ function AppContent() {
   const [showUserLogin, setShowUserLogin] = useState(false);
   const [player, setPlayer] = useState(null);
 
+  // Handle URL routing
+  useEffect(() => {
+    const path = window.location.pathname;
+    const hash = window.location.hash;
+    
+    // Map URL paths to active items
+    const pathMap: { [key: string]: string } = {
+      '/overview': 'overview',
+      '/players': 'players',
+      '/arenas': 'arenas',
+      '/game-templates': 'templates',
+      '/arena-games': 'games',
+      '/clips-and-media': 'media',
+      '/chat': 'chat',
+      '/you': 'you',
+      '/user-connections': 'user-connections'
+    };
+
+    // Check if we have a valid path
+    if (pathMap[path]) {
+      setActiveItem(pathMap[path]);
+    } else if (path === '/' || path === '') {
+      setActiveItem('overview');
+    }
+
+    // Handle password reset redirect
+    if (hash.includes('reset-password') && hash.includes('access_token')) {
+      console.log('Detected password reset - redirecting to You page...');
+      setActiveItem('you');
+      // Update URL to clean it up
+      window.history.replaceState(null, '', '/you');
+    }
+  }, []);
+
+  // Update URL when active item changes
+  const handleSetActiveItem = (item: string) => {
+    setActiveItem(item);
+    
+    // Map active items to URL paths
+    const itemMap: { [key: string]: string } = {
+      'overview': '/overview',
+      'players': '/players',
+      'arenas': '/arenas',
+      'templates': '/game-templates',
+      'games': '/arena-games',
+      'media': '/clips-and-media',
+      'chat': '/chat',
+      'you': '/you',
+      'user-connections': '/user-connections'
+    };
+
+    const newPath = itemMap[item] || '/overview';
+    window.history.pushState(null, '', newPath);
+  };
+
   // Start background forfeit service when app loads
   useEffect(() => {
     BackgroundForfeitService.start();
@@ -247,7 +302,7 @@ function AppContent() {
   const renderPage = () => {
     switch (activeItem) {
       case 'overview':
-        return <OverviewPage onNavigate={setActiveItem} />;
+        return <OverviewPage onNavigate={handleSetActiveItem} />;
       case 'players':
         return <PlayersPage />;
       case 'arenas':
@@ -263,17 +318,17 @@ function AppContent() {
       case 'you':
         // Only show You page if user is logged in
         if (!user) {
-          return <OverviewPage onNavigate={setActiveItem} />;
+          return <OverviewPage onNavigate={handleSetActiveItem} />;
         }
         return <YouPage />;
       case 'user-connections':
         // Only show User Connections page if admin is authenticated
         if (!isAuthenticated) {
-          return <OverviewPage onNavigate={setActiveItem} />;
+          return <OverviewPage onNavigate={handleSetActiveItem} />;
         }
         return <UserPlayerConnectionManager />;
       default:
-        return <OverviewPage onNavigate={setActiveItem} />;
+        return <OverviewPage onNavigate={handleSetActiveItem} />;
     }
   };
 
@@ -308,17 +363,10 @@ function AppContent() {
     );
   }
 
-  // Handle password reset - redirect to You page
-  if (hash.includes('reset-password') && hash.includes('access_token')) {
-    console.log('Detected password reset - redirecting to You page...');
-    // Set active item to 'you' and let the YouPage handle the reset
-    setActiveItem('you');
-  }
-
   return (
     <div className="dark size-full">
       <SidebarProvider>
-        <AppSidebar activeItem={activeItem} setActiveItem={setActiveItem} />
+        <AppSidebar activeItem={activeItem} setActiveItem={handleSetActiveItem} />
         <SidebarInset className="bg-[#0a0a0a]">
           <header className="flex h-16 items-center gap-4 border-b border-gray-800 px-6 bg-[#0f0f0f]/50 backdrop-blur-sm sticky top-0 z-10">
             <SidebarTrigger className="text-gray-400 hover:text-white" />

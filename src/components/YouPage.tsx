@@ -88,6 +88,14 @@ export function YouPage() {
     }
   }, []);
 
+  // Check for password reset on component mount
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash.includes('reset-password') && hash.includes('access_token')) {
+      setShowPasswordReset(true);
+    }
+  }, []);
+
   // Update countdown timer every second
   useEffect(() => {
     const interval = setInterval(() => {
@@ -481,7 +489,21 @@ export function YouPage() {
             </div>
           )}
 
-          <div className="mt-6 pt-6 border-t border-gray-800">
+          <div className="mt-6 pt-6 border-t border-gray-800 space-y-4">
+            {/* Password Change Section */}
+            <div className="space-y-3">
+              <h3 className="text-white font-medium">Account Security</h3>
+              <Button
+                onClick={() => setShowPasswordReset(true)}
+                variant="outline"
+                className="w-full border-gray-700 text-gray-400 hover:bg-gray-800 hover:text-white"
+              >
+                <Lock className="h-4 w-4 mr-2" />
+                Change Password
+              </Button>
+            </div>
+
+            {/* Sign Out */}
             <Button
               onClick={handleSignOut}
               variant="outline"
