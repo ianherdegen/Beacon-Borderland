@@ -245,12 +245,11 @@ function AppContent() {
       setActiveItem('overview');
     }
 
-    // Handle password reset redirect
-    if (hash.includes('reset-password') && hash.includes('access_token')) {
-      console.log('Detected password reset - redirecting to You page...');
-      setActiveItem('you');
-      // Update URL to clean it up
-      window.history.replaceState(null, '', '/you');
+    // Handle magic link authentication
+    if (hash.includes('access_token') && hash.includes('type=magiclink')) {
+      console.log('Detected magic link authentication - user will be logged in automatically');
+      // The UserAuthContext will handle the session automatically
+      // No need to redirect, just let the normal flow handle it
     }
   }, []);
 

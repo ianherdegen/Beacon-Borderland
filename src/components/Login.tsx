@@ -18,7 +18,7 @@ export function Login({ onSwitchToSignUp, onClose }: LoginProps) {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [forgotPasswordLoading, setForgotPasswordLoading] = useState(false);
+  const [magicLinkLoading, setMagicLinkLoading] = useState(false);
   const { signIn } = useUserAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -38,7 +38,7 @@ export function Login({ onSwitchToSignUp, onClose }: LoginProps) {
     setLoading(false);
   };
 
-  const handleForgotPassword = async () => {
+  const handleSendMagicLink = async () => {
     if (!email) {
       toast.error('Please enter your email address first');
       return;
@@ -49,33 +49,36 @@ export function Login({ onSwitchToSignUp, onClose }: LoginProps) {
       return;
     }
 
-    setForgotPasswordLoading(true);
+    setMagicLinkLoading(true);
     
     try {
-      console.log('Sending password reset email to:', email);
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/#reset-password`,
+      console.log('Sending magic link to:', email);
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/`,
+        }
       });
 
       if (error) {
-        console.error('Password reset error:', error);
+        console.error('Magic link error:', error);
         if (error.message.includes('7 seconds')) {
-          toast.error('Please wait 7 seconds before requesting another reset email.');
+          toast.error('Please wait 7 seconds before requesting another magic link.');
         } else if (error.message.includes('not found') || error.message.includes('does not exist')) {
           toast.error('No account found with this email address.');
         } else {
-          toast.error(`Failed to send reset email: ${error.message}`);
+          toast.error(`Failed to send magic link: ${error.message}`);
         }
       } else {
-        console.log('Password reset email sent successfully');
-        toast.success('Password reset email sent! Check your inbox and spam folder.');
+        console.log('Magic link sent successfully');
+        toast.success('Magic link sent! Check your inbox and spam folder.');
       }
     } catch (error) {
-      console.error('Password reset catch error:', error);
-      toast.error('Failed to send reset email. Please try again.');
+      console.error('Magic link catch error:', error);
+      toast.error('Failed to send magic link. Please try again.');
     }
     
-    setForgotPasswordLoading(false);
+    setMagicLinkLoading(false);
   };
 
   return (
@@ -143,11 +146,11 @@ export function Login({ onSwitchToSignUp, onClose }: LoginProps) {
             <div className="text-right">
               <button
                 type="button"
-                onClick={handleForgotPassword}
-                disabled={forgotPasswordLoading}
+                onClick={handleSendMagicLink}
+                disabled={magicLinkLoading}
                 className="text-sm text-[#e63946] hover:text-[#e63946]/80 font-medium disabled:opacity-50"
               >
-                {forgotPasswordLoading ? 'Sending...' : 'Recover Account'}
+                {magicLinkLoading ? 'Sending...' : 'Send Magic Link'}
               </button>
             </div>
 

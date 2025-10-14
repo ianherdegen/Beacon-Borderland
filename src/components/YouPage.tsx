@@ -78,23 +78,7 @@ export function YouPage() {
     loadPlayerProfile();
   }, [user]);
 
-  // Check if user came from password reset link
-  useEffect(() => {
-    const hash = window.location.hash;
-    if (hash.includes('reset-password') && hash.includes('access_token')) {
-      setShowPasswordReset(true);
-      // Clear the hash to clean up the URL
-      window.history.replaceState(null, '', window.location.pathname);
-    }
-  }, []);
-
-  // Check for password reset on component mount
-  useEffect(() => {
-    const hash = window.location.hash;
-    if (hash.includes('reset-password') && hash.includes('access_token')) {
-      setShowPasswordReset(true);
-    }
-  }, []);
+  // No longer need password reset detection since we're using magic links
 
   // Update countdown timer every second
   useEffect(() => {
