@@ -14,6 +14,7 @@ import {
   Link,
   Shield,
   CheckCircle,
+  Lighthouse,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -455,14 +456,7 @@ function AppContent() {
                 className="text-gray-400 hover:text-white border-gray-700 hover:border-gray-600 p-2"
                 title="Visit The Beacon HQ"
               >
-                <div className="h-4 w-4 flex items-center justify-center">
-                  <div className="relative">
-                    {/* Beacon tower */}
-                    <div className="w-1 h-3 bg-gray-400 rounded-sm"></div>
-                    {/* Beacon light */}
-                    <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-300 rounded-full"></div>
-                  </div>
-                </div>
+                <Lighthouse className="h-4 w-4" />
               </Button>
             </div>
           </header>
