@@ -444,6 +444,26 @@ function AppContent() {
                       <Shield className="h-4 w-4" />
                     </Button>
                   )}
+                  
+                  {/* Beacon Icon - Link to thebeaconhq.com */}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => window.open('https://thebeaconhq.com', '_blank')}
+                    className="text-gray-400 hover:text-white border-gray-700 hover:border-gray-600 p-2 ml-2"
+                    title="Visit The Beacon HQ"
+                  >
+                    <div className="h-4 w-4 flex items-center justify-center">
+                      <div className="relative">
+                        {/* Beacon tower */}
+                        <div className="w-1 h-3 bg-gradient-to-b from-yellow-400 to-orange-500 rounded-sm"></div>
+                        {/* Beacon light */}
+                        <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gradient-to-b from-yellow-300 to-red-500 rounded-full animate-pulse"></div>
+                        {/* Light rays */}
+                        <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-3 h-1 bg-gradient-to-r from-transparent via-yellow-300 to-transparent opacity-60"></div>
+                      </div>
+                    </div>
+                  </Button>
                 </div>
               )}
             </div>
