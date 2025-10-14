@@ -161,13 +161,7 @@ export function YouPage() {
       } else {
         setPasswordSuccess(true);
         toast.success('Password updated successfully!');
-        // Hide the form after success
-        setTimeout(() => {
-          setShowPasswordReset(false);
-          setPasswordSuccess(false);
-          setPassword('');
-          setConfirmPassword('');
-        }, 2000);
+        // Don't auto-hide the modal, let user click Close
       }
     } catch (error) {
       toast.error('Failed to update password');
@@ -189,30 +183,49 @@ export function YouPage() {
         </div>
       </div>
 
-      {/* Password Reset Form */}
+      {/* Password Change Modal */}
       {showPasswordReset && (
-        <Card className="bg-[#0f0f0f] border-gray-800">
-          <div className="p-6">
-            {passwordSuccess ? (
-              <div className="text-center">
-                <div className="h-12 w-12 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-4">
-                  <CheckCircle className="h-6 w-6 text-green-500" />
-                </div>
-                <h2 className="text-xl font-bold text-white mb-2">Password Updated!</h2>
-                <p className="text-gray-400">Your password has been successfully updated.</p>
-              </div>
-            ) : (
-              <div>
-                <div className="flex items-center gap-3 mb-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+          <Card className="w-full max-w-md bg-[#0f0f0f] border-gray-800">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
                   <div className="h-10 w-10 rounded-lg bg-[#e63946]/10 flex items-center justify-center">
                     <Lock className="h-5 w-5 text-[#e63946]" />
                   </div>
                   <div>
-                    <h2 className="text-xl font-bold text-white">Reset Password</h2>
-                    <p className="text-gray-400">Set a new password for your account</p>
+                    <h2 className="text-xl font-bold text-white">Change Password</h2>
+                    <p className="text-sm text-gray-400">Set a new password for your account</p>
                   </div>
                 </div>
+                <button
+                  onClick={() => setShowPasswordReset(false)}
+                  className="text-gray-400 hover:text-white transition-colors"
+                >
+                  ×
+                </button>
+              </div>
 
+              {passwordSuccess ? (
+                <div className="text-center">
+                  <div className="h-12 w-12 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-4">
+                    <CheckCircle className="h-6 w-6 text-green-500" />
+                  </div>
+                  <h3 className="text-lg font-bold text-white mb-2">Password Updated!</h3>
+                  <p className="text-gray-400 mb-4">Your password has been successfully updated.</p>
+                  <Button
+                    onClick={() => {
+                      setShowPasswordReset(false);
+                      setPasswordSuccess(false);
+                      setPassword('');
+                      setConfirmPassword('');
+                    }}
+                    className="bg-[#e63946] hover:bg-[#e63946]/80"
+                  >
+                    Close
+                  </Button>
+                </div>
+              ) : (
                 <form onSubmit={handlePasswordReset} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="new-password" className="text-white">New Password</Label>
@@ -278,10 +291,10 @@ export function YouPage() {
                     </Button>
                   </div>
                 </form>
-              </div>
-            )}
-          </div>
-        </Card>
+              )}
+            </div>
+          </Card>
+        </div>
       )}
 
       {/* User Info Card */}
