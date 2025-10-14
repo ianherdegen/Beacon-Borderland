@@ -147,7 +147,7 @@ export function Login({ onSwitchToSignUp, onClose }: LoginProps) {
                 disabled={forgotPasswordLoading}
                 className="text-sm text-[#e63946] hover:text-[#e63946]/80 font-medium disabled:opacity-50"
               >
-                {forgotPasswordLoading ? 'Sending...' : 'Forgot Password?'}
+                {forgotPasswordLoading ? 'Sending...' : 'Reset Password'}
               </button>
             </div>
 
