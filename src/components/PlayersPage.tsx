@@ -4,7 +4,7 @@ import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import { Badge } from './ui/badge';
-import { Search, Eye, X, Trophy, Target, Calendar, Clock, UserCheck, Loader2, UserPlus, Edit } from 'lucide-react';
+import { Search, Eye, X, Trophy, Target, Calendar, Clock, UserCheck, Loader2, UserPlus, Edit, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from './ui/sheet';
 import { Avatar, AvatarFallback } from './ui/avatar';
 import { Separator } from './ui/separator';
@@ -101,6 +101,8 @@ export function PlayersPage() {
   const [loadingGameHistory, setLoadingGameHistory] = useState(false);
   const [gameHistoryPage, setGameHistoryPage] = useState(0);
   const [hasMoreGames, setHasMoreGames] = useState(true);
+  const [sortField, setSortField] = useState<string>('username');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
   // Fetch player's last game information
   const fetchPlayerLastGame = async (playerId: number) => {
@@ -360,14 +362,46 @@ export function PlayersPage() {
     };
   }, [players]);
 
-  const filteredPlayers = players.filter((player) => {
-    const matchesStatus = filterStatus === 'all' || player.status === filterStatus;
-    const matchesSearch = player.username.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesStatus && matchesSearch;
-  });
+  // Sort players function - only username and status
+  const sortPlayers = (players: Player[], field: string, direction: 'asc' | 'desc') => {
+    return [...players].sort((a, b) => {
+      let aValue: any;
+      let bValue: any;
+
+      switch (field) {
+        case 'username':
+          aValue = a.username.toLowerCase();
+          bValue = b.username.toLowerCase();
+          break;
+        case 'status':
+          aValue = a.status;
+          bValue = b.status;
+          break;
+        default:
+          return 0;
+      }
+
+      if (aValue < bValue) return direction === 'asc' ? -1 : 1;
+      if (aValue > bValue) return direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+  };
+
+  const filteredPlayers = sortPlayers(
+    players.filter((player) => {
+      const matchesStatus = filterStatus === 'all' || player.status === filterStatus;
+      const matchesSearch = player.username.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesStatus && matchesSearch;
+    }),
+    sortField,
+    sortDirection
+  );
 
   // Calculate player wins from arena_game_players
   const calculatePlayerWins = (playerId: number) => {
+    if (!arenaGamePlayers || !Array.isArray(arenaGamePlayers)) {
+      return 0;
+    }
     return arenaGamePlayers.filter(
       bgp => bgp.player_id === playerId && bgp.player_outcome === 'win'
     ).length;
@@ -375,9 +409,32 @@ export function PlayersPage() {
 
   // Calculate player total games from arena_game_players
   const calculatePlayerTotalGames = (playerId: number) => {
+    if (!arenaGamePlayers || !Array.isArray(arenaGamePlayers)) {
+      return 0;
+    }
     return arenaGamePlayers.filter(
       bgp => bgp.player_id === playerId
     ).length;
+  };
+
+  // Handle sorting
+  const handleSort = (field: string) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
+  // Get sort icon for a field
+  const getSortIcon = (field: string) => {
+    if (sortField !== field) {
+      return <ArrowUpDown className="h-4 w-4 text-gray-500" />;
+    }
+    return sortDirection === 'asc' 
+      ? <ArrowUp className="h-4 w-4 text-[#00d9ff]" />
+      : <ArrowDown className="h-4 w-4 text-[#00d9ff]" />;
   };
 
   // Handle player reinstatement
@@ -517,8 +574,24 @@ export function PlayersPage() {
               <Table>
                 <TableHeader>
                   <TableRow className="border-gray-800 hover:bg-transparent">
-                    <TableHead className="text-gray-400">Username</TableHead>
-                    <TableHead className="text-gray-400">Status</TableHead>
+                    <TableHead 
+                      className="text-gray-400 cursor-pointer hover:text-white transition-colors select-none"
+                      onClick={() => handleSort('username')}
+                    >
+                      <div className="flex items-center gap-2">
+                        Username
+                        {getSortIcon('username')}
+                      </div>
+                    </TableHead>
+                    <TableHead 
+                      className="text-gray-400 cursor-pointer hover:text-white transition-colors select-none"
+                      onClick={() => handleSort('status')}
+                    >
+                      <div className="flex items-center gap-2">
+                        Status
+                        {getSortIcon('status')}
+                      </div>
+                    </TableHead>
                     <TableHead className="text-gray-400">Wins</TableHead>
                     <TableHead className="text-gray-400">Countdown</TableHead>
                     <TableHead className="text-gray-400 text-right">Actions</TableHead>
