@@ -167,9 +167,10 @@ This system ensures that every player in Borderland is **verified and approved b
    ```
 
 4. **Database Setup**
-   - Import the database schema
-   - Set up Supabase Edge Functions
+   - Import the database schema from `database/supabase-complete-schema.sql`
+   - Set up Supabase Edge Functions for email notifications
    - Configure Row Level Security (RLS) policies
+   - See `database/README.md` for detailed setup instructions
 
 5. **Start Development Server**
    ```bash
@@ -188,6 +189,8 @@ The application uses a comprehensive PostgreSQL schema with the following main t
 - `arena_games` - Individual game sessions
 - `arena_game_players` - Player participation records
 - `users` - Authentication and user management
+
+**Schema Files**: See `database/` folder for complete schema and setup scripts.
 
 ### Environment Variables
 ```env
