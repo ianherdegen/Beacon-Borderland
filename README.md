@@ -2,8 +2,6 @@
 
 A comprehensive survival game management system built with React, TypeScript, and Supabase. Borderland provides a complete platform for managing players, arenas, game templates, and match outcomes in a competitive survival game environment.
 
-![Borderland Logo](docs/images/borderland-logo.png)
-
 ## 🎮 Overview
 
 Borderland is a sophisticated game management platform designed for competitive survival games. It features real-time player tracking, arena management, game template systems, and comprehensive match recording capabilities.
@@ -66,7 +64,9 @@ Borderland is a sophisticated game management platform designed for competitive 
 ## 📱 Application Pages
 
 ### 🏠 Overview Dashboard
-![Overview Dashboard](docs/images/overview-dashboard.png)
+
+<img width="1244" height="668" alt="The Beacon Overview" src="https://github.com/user-attachments/assets/581b8e51-feaa-4d68-aac6-6c98a9a3b4a2" />
+
 - Real-time statistics and player counts
 - Top performing players leaderboard
 - Active arenas and games monitoring
