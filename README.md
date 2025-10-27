@@ -61,101 +61,124 @@ Borderland is a sophisticated game management platform designed for competitive 
 
    Open [http://localhost:5173](http://localhost:5173) to view the application.
 
-## 📱 Application Pages
+# 🌌 About Borderland
 
-### 🏠 Overview Dashboard
+**Borderland** is a live, hyperlocal survival game tournament hosted by **The Beacon**, inspired by Netflix’s *Alice in Borderland*.  
+Players compete in challenges to extend their **“Visa”** — their right to exist in Borderland, a realm between life and death.  
 
-<img width="1244" height="668" alt="The Beacon Overview" src="https://github.com/user-attachments/assets/581b8e51-feaa-4d68-aac6-6c98a9a3b4a2" />
+Throughout each day of Borderland, different **Arenas** activate, each offering one of three distinct types of games.  
+Players must choose their battles wisely to survive and advance.
 
-- Real-time statistics and player counts
-- Top performing players leaderboard
-- Active arenas and games monitoring
-- Quick navigation to all sections
+---
 
-### 👥 Players Management
-![Players Page](docs/images/players-page.png)
-- Complete player roster with status tracking
-- Individual player profiles and game history
-- Automatic forfeit detection (3-day inactivity rule)
-- Player reinstatement capabilities
-- Real-time countdown timers
+## 🎮 Types of Games
 
-### 📡 Arenas System
-![Arenas Page](docs/images/arenas-page.png)
-- Multi-location arena management
-- Real-time arena status monitoring
-- Game template assignment per arena
-- Live game session management
-- Participant management and outcome tracking
+### 🕹️ Solo Games  
+Players take on individual missions or face off against a “Borderland Citizen” in one-on-one survival challenges.  
+**Win to stay alive — lose and face elimination.**
 
-### 🎯 Game Templates
-![Game Templates](docs/images/game-templates.png)
-- Template creation and management
-- Support for Solo, Versus, and Group game types
-- Video explainer clips integration
-- Thumbnail and description management
-- Template assignment to arenas
+### ⚔️ Versus Games  
+A competitive arena where players go head-to-head.  
+**Some survive. Others risk elimination.**
 
-### 🎮 Arena Games
-![Arena Games](docs/images/arena-games.png)
-- Live game session monitoring
-- Match outcome recording
-- Video footage management
-- Player participation tracking
-- Game history and statistics
+### 🤝 Group Games  
+Team-based trials where cooperation is key.  
+**Either everyone survives, or everyone is eliminated.**
+
+---
+
+## ⏳ Player Visas
+
+Every player holds a **Visa**, a timer that determines how long they can remain in Borderland.  
+To renew it, players must complete at least **one game every three days**.  
+Failure to do so results in **automatic forfeiture** from the tournament.
+
+📧 Players connected via email will receive a warning **one day before their Visa expires**.  
+Visa countdowns are also visible under each player’s username on the **Players Page**.
+
+---
+
+## 🏁 Final Tournament
+
+As Borderland nears its end, a **final arena** will activate for the ultimate showdown.  
+The remaining contenders will enter a **last-player-standing Versus Game**, where only one will emerge as the champion. 🏆  
+
+Past victories count — each win grants **favor points**, giving players a strategic advantage in the final battle.
+
+---
+
+## 🧭 The Borderland Dashboard
+
+### 📊 Overview Page
+Get a snapshot of Borderland in real time — total players, active arenas, and ongoing games.  
+See who’s dominating the leaderboard and which arenas are open for competition.  
+For players seeking their next challenge, this is the best place to start.
+
+---
+
+### 🧍 Players Page
+Browse all registered players, view their **status** (Active, Forfeit, or Eliminated), **win count**, and **Visa countdowns**.  
+
+**🛠️ Admins can:**
+- Manage account details directly from this page  
+- Reinstate eliminated players  
+
+---
+
+### 🏟️ Arenas
+The **Arenas Page** lists all active and inactive arenas, along with the games currently running in each location.  
+
+**🛠️ Admins can:**
+- Activate or deactivate arenas  
+- Create new arenas  
+- Assign or change the games hosted at arenas  
+- Start games and add participants  
+- Declare winners for completed matches  
+
+---
+
+### 🎲 Game Templates
+View a collection of **Game Templates**, each featuring a photo, game description, and classification (Solo, Versus, or Group).  
+Explainer videos may also be available for reference.  
+
+**🛠️ Admins can:**
+- Create new templates or edit existing ones  
+
+---
+
+### 🎯 Arena Games
+The **Arena Games Page** displays every game hosted across Borderland’s arenas.  
+
+Each entry shows:
+- 🏟️ The hosting **Arena**  
+- 🧩 The **Game Template** used  
+- 🎮 **Participating Players**  
+- ⏱️ **Game Status** (Active, Completed, or Cancelled)  
+
+Detailed views include start and end times, results, player stats, and match footage, if available. 🎥
+
+---
 
 ### 🎬 Clips & Media
-![Media Page](docs/images/media-page.png)
-- Explainer clips gallery
-- Match footage collection
-- Video URL management
-- Organized by game templates and matches
+An archive of all Borderland media — from explainer videos to match highlights.  
+This central hub lets players **relive past games** or **learn from others**.  
+🛠️ Admins can edit clips if needed.
 
-### 💬 Community Chat
-![Chat Page](docs/images/chat-page.png)
-- Real-time community chat integration
-- Embedded chat widget
-- Community guidelines
-- Live status indicators
+---
 
-### 👤 User Profile
-![User Profile](docs/images/user-profile.png)
-- Personal account management
-- Player profile connection
-- Game history tracking
-- Password management
-- Account security settings
+### 💬 Chat
+A **live chatroom** where players can connect, strategize, and share their experiences in real time.  
 
-### 🔗 Admin Tools
-![Admin Panel](docs/images/admin-panel.png)
-- User-player connection management
-- Administrative controls
-- System monitoring
-- Data management tools
+---
 
-## 🏗️ Architecture
+### 🔐 Sign Up & Login
+Anyone can **Sign Up** and **Log In** using their email, but by default, player profiles can only be created by **admins**.  
 
-### Frontend Stack
-- **React 18** with TypeScript
-- **Vite** for build tooling
-- **Tailwind CSS** for styling
-- **Radix UI** for component primitives
-- **Lucide React** for icons
-- **Sonner** for notifications
+**🛠️ Admins have access to the User Connections page**, where they can link:
+- 🧑‍💻 A **User Account** (created through email signup)  
+- 🎭 To a **Player Profile** (created on the Players Page)  
 
-### Backend Stack
-- **Supabase** for database and authentication
-- **PostgreSQL** database
-- **Supabase Edge Functions** for serverless functions
-- **Row Level Security (RLS)** for data protection
-
-### Key Services
-- **Player Management**: Track player status and game participation
-- **Arena Management**: Handle multiple game locations
-- **Game Templates**: Manage different game types and rules
-- **Match Recording**: Record outcomes and video footage
-- **User Authentication**: Secure login and role management
-- **Background Services**: Automatic forfeit detection
+This system ensures that every player in Borderland is **verified and approved by admins** — the official gatekeepers of the game. 🚪
 
 ## 🔧 Configuration
 
