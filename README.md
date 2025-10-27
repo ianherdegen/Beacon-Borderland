@@ -168,9 +168,6 @@ The application includes several Edge Functions:
 The application is configured for Vercel deployment:
 
 1. **Connect to Vercel**
-   ```bash
-   vercel --prod
-   ```
 
 2. **Configure Environment Variables**
    Set all required environment variables in Vercel dashboard
