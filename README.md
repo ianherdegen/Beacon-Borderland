@@ -141,7 +141,7 @@ This system ensures that every player in Borderland is **verified and approved b
 ### Database Schema
 The application uses a comprehensive PostgreSQL schema with the following main tables:
 - `players` - Player profiles and status
-- `arenas` - Game location management
+- `arenas` - Arena management
 - `game_templates` - Reusable game configurations
 - `arena_games` - Individual game sessions
 - `arena_game_players` - Player participation records
