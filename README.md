@@ -114,6 +114,8 @@ Get a snapshot of Borderland in real time — total players, active arenas, and 
 See who’s dominating the leaderboard and which arenas are open for competition.  
 For players seeking their next challenge, this is the best place to start.
 
+<img width="1278" height="759" alt="Overview" src="https://github.com/user-attachments/assets/c25dd497-47d4-4137-8e41-190a0bd9001f" />
+
 ---
 
 ### 🧍 Players Page
@@ -121,9 +123,12 @@ Browse all registered players, view their **status** (Active, Forfeit, or Elimin
 
 **🛠️ Admins can:**
 - Manage account details directly from this page  
-- Reinstate eliminated players  
+- Reinstate eliminated players
+
+<img width="1278" height="759" alt="Players" src="https://github.com/user-attachments/assets/c26d9bdb-936a-4a06-afe5-0e0025738c21" />
 
 ---
+
 
 ### 🏟️ Arenas
 The **Arenas Page** lists all active and inactive arenas, along with the games currently running in each location.  
@@ -135,6 +140,8 @@ The **Arenas Page** lists all active and inactive arenas, along with the games c
 - Start games and add participants  
 - Declare winners for completed matches  
 
+<img width="1278" height="759" alt="Arenas" src="https://github.com/user-attachments/assets/94d9632b-b4a4-4ef2-8378-c844d2b3cf90" />
+
 ---
 
 ### 🎲 Game Templates
@@ -143,6 +150,8 @@ Explainer videos may also be available for reference.
 
 **🛠️ Admins can:**
 - Create new templates or edit existing ones  
+
+<img width="1278" height="759" alt="Game Templates" src="https://github.com/user-attachments/assets/86826c96-a828-4fdc-a361-b46ae33242e1" />
 
 ---
 
@@ -157,6 +166,8 @@ Each entry shows:
 
 Detailed views include start and end times, results, player stats, and match footage, if available. 🎥
 
+<img width="1278" height="759" alt="Arena Games" src="https://github.com/user-attachments/assets/259688e5-6977-4520-b69a-daf5cb3859af" />
+
 ---
 
 ### 🎬 Clips & Media
@@ -164,10 +175,14 @@ An archive of all Borderland media — from explainer videos to match highlights
 This central hub lets players **relive past games** or **learn from others**.  
 🛠️ Admins can edit clips if needed.
 
+<img width="1278" height="759" alt="Clips and Media" src="https://github.com/user-attachments/assets/27927f82-a656-4a98-b8b1-c6fe0f652ee6" />
+
 ---
 
 ### 💬 Chat
 A **live chatroom** where players can connect, strategize, and share their experiences in real time.  
+
+<img width="1278" height="759" alt="Chat" src="https://github.com/user-attachments/assets/1204f86e-5d26-457c-96c1-b1344bd357a4" />
 
 ---
 
@@ -179,6 +194,10 @@ Anyone can **Sign Up** and **Log In** using their email, but by default, player 
 - 🎭 To a **Player Profile** (created on the Players Page)  
 
 This system ensures that every player in Borderland is **verified and approved by admins** — the official gatekeepers of the game. 🚪
+
+<img width="1278" height="759" alt="User Connections" src="https://github.com/user-attachments/assets/91035b81-763b-4b9f-b048-6382ef0e520e" />
+
+---
 
 ## 🔧 Configuration
 
