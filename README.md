@@ -1,4 +1,4 @@
-# ABOUT ♠ BORDERLAND ♥
+# ♠ ABOUT BORDERLAND ♥
 
 **Borderland** is a live, hyperlocal survival game tournament hosted by **The Beacon**, inspired by Netflix’s *Alice in Borderland*.  
 Players compete in challenges to extend their **“Visa”** — their right to exist in Borderland, a realm between life and death.  
