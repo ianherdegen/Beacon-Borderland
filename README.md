@@ -153,9 +153,7 @@ The application uses a comprehensive PostgreSQL schema with the following main t
 VITE_SUPABASE_URL=your_supabase_project_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 VITE_SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
-
-# Optional: Email Configuration
-VITE_EMAIL_FROM=noreply@yourdomain.com
+VITE_ADMIN_PASSWORD=your_admin_password
 ```
 
 ### Supabase Edge Functions
@@ -163,40 +161,6 @@ The application includes several Edge Functions:
 - `send-email` - Email notification system
 - `check-user-exists` - User validation
 - `forfeit-warnings` - Automatic forfeit notifications
-
-## 🎯 Game Mechanics
-
-### Player Status System
-- **Active**: Players currently in the game
-- **Eliminated**: Players removed from competition
-- **Forfeit**: Players who failed to play within 3 days
-
-### Game Types
-- **Solo**: Individual player challenges
-- **Versus**: Head-to-head competitions
-- **Group**: Team-based gameplay
-
-### Arena Management
-- Multiple physical locations
-- Real-time status monitoring
-- Template assignment per arena
-- Live game session tracking
-
-## 🔐 Security Features
-
-- **Row Level Security (RLS)** on all database tables
-- **JWT-based authentication** via Supabase
-- **Role-based access control** (Admin vs Player)
-- **Secure API endpoints** with proper validation
-- **Password reset** via magic links
-
-## 📊 Monitoring & Analytics
-
-- Real-time player statistics
-- Game outcome tracking
-- Arena utilization metrics
-- Player performance analytics
-- Match duration and frequency data
 
 ## 🚀 Deployment
 
@@ -213,56 +177,3 @@ The application is configured for Vercel deployment:
 
 3. **Database Setup**
    Ensure Supabase project is properly configured with RLS policies
-
-### Build Commands
-```bash
-# Development
-yarn dev
-
-# Production Build
-yarn build
-
-# Preview Build
-yarn preview
-```
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🆘 Support
-
-For support and questions:
-- Create an issue in the GitHub repository
-- Contact the development team
-- Check the documentation in the `docs/` folder
-
-## 🎨 Design System
-
-The application uses a consistent design system with:
-- **Color Palette**: Dark theme with neon accents (#00d9ff, #ff00ff, #e63946)
-- **Typography**: Clean, readable fonts with proper hierarchy
-- **Components**: Reusable UI components built with Radix UI
-- **Icons**: Consistent iconography with Lucide React
-- **Animations**: Smooth transitions and loading states
-
-## 🔄 Version History
-
-- **v1.0.0** - Initial release with core functionality
-- **v1.1.0** - Added video management and media gallery
-- **v1.2.0** - Enhanced admin tools and user management
-- **v1.3.0** - Real-time updates and automatic forfeit detection
-
----
-
-**Built with ❤️ for the competitive gaming community**
-
-![Footer](docs/images/footer-banner.png)
