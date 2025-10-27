@@ -136,7 +136,7 @@ This system ensures that every player in Borderland is **verified and approved b
 
 ---
 
-## Setup
+## 🚀 Setup
 
 ### Prerequisites
 
