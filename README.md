@@ -136,6 +136,48 @@ This system ensures that every player in Borderland is **verified and approved b
 
 ---
 
+## Setup
+
+### Prerequisites
+
+- Node.js 18+ 
+- Yarn package manager
+- Supabase account and project
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/your-username/beacon-borderland.git
+   cd beacon-borderland
+   ```
+
+2. **Install dependencies**
+   ```bash
+   yarn install
+   ```
+
+3. **Environment Setup**
+   
+   Configure your Supabase credentials in `.env.local`:
+   ```env
+   VITE_SUPABASE_URL=your_supabase_url
+   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+   VITE_SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+   ```
+
+4. **Database Setup**
+   - Import the database schema
+   - Set up Supabase Edge Functions
+   - Configure Row Level Security (RLS) policies
+
+5. **Start Development Server**
+   ```bash
+   yarn dev
+   ```
+
+   Open your locally hosted application.
+
 ## 🔧 Configuration
 
 ### Database Schema
