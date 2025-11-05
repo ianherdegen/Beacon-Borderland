@@ -179,69 +179,6 @@ This system ensures that every player in Borderland is **verified and approved b
 
    Open your locally hosted application.
 
-## 🛠️ Tech Stack
-
-### Frontend Framework & Core
-- **React 18.3.1** - UI library with hooks and modern patterns
-- **TypeScript** - Type-safe JavaScript development
-- **Vite 5.4.0** - Fast build tool and development server
-- **React SWC** - Fast React Refresh and compilation
-
-### UI Component Library
-- **Radix UI** - Headless, accessible component primitives
-  - Dialog, Dropdown, Tabs, Select, Tooltip, and 30+ other components
-- **Tailwind CSS** - Utility-first CSS framework
-- **Lucide React 0.487.0** - Icon library
-- **class-variance-authority** - Component variant management
-- **tailwind-merge** - Merge Tailwind classes intelligently
-
-### Forms & Input
-- **React Hook Form 7.55.0** - Performant form library
-- **input-otp** - OTP input components
-- **react-day-picker 8.10.1** - Date picker component
-
-### UI Utilities & Features
-- **Sonner 2.0.3** - Toast notification system
-- **cmdk 1.1.1** - Command menu component
-- **vaul 1.1.2** - Drawer component
-- **embla-carousel-react 8.6.0** - Carousel/slider component
-- **react-resizable-panels 2.1.7** - Resizable panel layouts
-- **recharts 2.15.2** - Charting library
-- **next-themes 0.4.6** - Theme management (dark mode)
-
-### Backend & Database
-- **Supabase** - Backend-as-a-Service platform
-  - **PostgreSQL** - Relational database
-  - **Supabase Auth** - Authentication and user management
-  - **Row Level Security (RLS)** - Database-level security policies
-  - **Supabase Edge Functions** - Serverless functions (Deno runtime)
-    - Email notifications via Resend API
-    - Forfeit warning system
-    - User validation endpoints
-
-### Email Service
-- **Resend API** - Transactional email service for notifications
-
-### Package Management
-- **Yarn** - Fast, reliable dependency management
-
-### Deployment
-- **Vercel** - Frontend hosting and deployment platform
-- **GitHub** - Version control and repository hosting
-
-### Development Tools
-- **Node.js 18+** - JavaScript runtime
-- **TypeScript** - Static type checking
-- **ESBuild** - Fast JavaScript bundler (via Vite)
-
-### AI & Coding Tools
-- **Cursor AI** - AI-powered code editor for development assistance
-- **Auto (Claude Sonnet 4.5)** - AI coding assistant for:
-  - Code generation and refactoring
-  - Documentation writing
-  - Bug fixes and optimizations
-  - Architecture decisions and project organization
-
 ## 🔧 Configuration
 
 ### Database Schema
