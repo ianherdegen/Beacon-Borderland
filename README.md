@@ -56,11 +56,12 @@ For players seeking their next challenge, this is the best place to start.
 ---
 
 ### 🧍 Players Page
-Browse all registered players, view their **status** (Active, Forfeit, or Eliminated), **win count**, and **Visa countdowns**.  
+Browse all registered players, view their **status** (Active, Forfeit, or Eliminated), **win count**, and **Visa countdowns**. The tournament champion is also shown here upon conclusion.
 
 **🛠️ Admins can:**
 - Manage account details directly from this page  
 - Reinstate eliminated players
+- Mark a player as the overall champion
 
 <img width="1278" height="759" alt="Players" src="https://github.com/user-attachments/assets/c26d9bdb-936a-4a06-afe5-0e0025738c21" />
 
