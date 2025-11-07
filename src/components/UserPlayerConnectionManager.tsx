@@ -4,7 +4,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { User, Link, Unlink, Search, Mail, Gamepad2 } from 'lucide-react';
+import { User, Link, Unlink, Search, Mail, Gamepad2, Crown } from 'lucide-react';
 import { UserPlayerConnectionService } from '../services/user-player-connection';
 import { PlayersService } from '../services/players';
 import { Player } from '../types';
@@ -257,8 +257,16 @@ export function UserPlayerConnectionManager() {
                           player.status === 'Active' ? 'bg-green-500/20 text-green-400' :
                           player.status === 'Eliminated' ? 'bg-red-500/20 text-red-400' :
                           player.status === 'Forfeit' ? 'bg-orange-500/20 text-orange-400' :
+                          player.status === 'Champion' ? 'bg-yellow-500/30 text-yellow-300 border border-yellow-400/60 font-semibold' :
                           'bg-yellow-500/20 text-yellow-400'
-                        }`}>
+                        }`}
+                        style={player.status === 'Champion' ? {
+                          backgroundColor: 'rgba(234, 179, 8, 0.3)',
+                          color: '#fde047',
+                          borderColor: 'rgba(234, 179, 8, 0.6)'
+                        } : {}}
+                        >
+                          {player.status === 'Champion' && <Crown className="h-3 w-3 mr-1 inline text-yellow-300 fill-yellow-300" />}
                           {player.status}
                         </span>
                       </div>

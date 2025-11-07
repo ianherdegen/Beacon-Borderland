@@ -39,7 +39,7 @@ export interface UpdateGameTemplate {
 export interface Player {
   id: number;
   username: string;
-  status: 'Active' | 'Eliminated' | 'Forfeit';
+  status: 'Active' | 'Eliminated' | 'Forfeit' | 'Champion';
   last_game_at: string | null;
   join_date: string;
   avatar: string | null;
@@ -51,14 +51,14 @@ export interface Player {
 
 export interface CreatePlayer {
   username: string;
-  status?: 'Active' | 'Eliminated' | 'Forfeit';
+  status?: 'Active' | 'Eliminated' | 'Forfeit' | 'Champion';
   avatar?: string;
   bio?: string;
 }
 
 export interface UpdatePlayer {
   username?: string;
-  status?: 'Active' | 'Eliminated' | 'Forfeit';
+  status?: 'Active' | 'Eliminated' | 'Forfeit' | 'Champion';
   avatar?: string;
   bio?: string;
 }
@@ -193,7 +193,7 @@ export interface GameTemplateFilters {
 }
 
 export interface PlayerFilters {
-  status?: 'Active' | 'Eliminated' | 'Forfeit' | 'all';
+  status?: 'Active' | 'Eliminated' | 'Forfeit' | 'Champion' | 'all';
   search?: string;
 }
 

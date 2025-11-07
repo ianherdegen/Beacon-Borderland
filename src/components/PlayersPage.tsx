@@ -4,7 +4,7 @@ import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import { Badge } from './ui/badge';
-import { Search, Eye, X, Trophy, Target, Calendar, Clock, UserCheck, Loader2, UserPlus, Edit, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { Search, Eye, X, Trophy, Target, Calendar, Clock, UserCheck, Loader2, UserPlus, Edit, ArrowUpDown, ArrowUp, ArrowDown, Crown } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from './ui/sheet';
 import { Avatar, AvatarFallback } from './ui/avatar';
 import { Separator } from './ui/separator';
@@ -34,8 +34,8 @@ const formatTimeAgo = (dateString: string | null): string => {
 
 // Helper function to calculate countdown from last game (3 days)
 const getCountdownFromLastGame = (dateString: string | null, playerStatus: string): string => {
-  // Show dash for eliminated players since countdown is irrelevant
-  if (playerStatus === 'Eliminated') return '-';
+  // Show dash for eliminated or champion players since countdown is irrelevant
+  if (playerStatus === 'Eliminated' || playerStatus === 'Champion') return '-';
   if (!dateString) return '-';
   
   const lastGameDate = new Date(dateString);
@@ -64,6 +64,8 @@ export function PlayersPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reinstating, setReinstating] = useState(false);
+  const [markingChampion, setMarkingChampion] = useState(false);
+  const [championExists, setChampionExists] = useState(false);
   const [arenaGamePlayers, setArenaGamePlayers] = useState<any[]>([]);
   const [isCreatePlayerDialogOpen, setIsCreatePlayerDialogOpen] = useState(false);
   const [creatingPlayer, setCreatingPlayer] = useState(false);
@@ -280,6 +282,10 @@ export function PlayersPage() {
         setPlayers(data);
         setArenaGamePlayers(arenaGamePlayersData || []);
         
+        // Check if a champion already exists
+        const hasChampion = data.some(player => player.status === 'Champion');
+        setChampionExists(hasChampion);
+        
         // Automatically check for forfeits when page loads
         try {
           const result = await PlayersService.checkAndUpdateForfeitStatus();
@@ -461,12 +467,63 @@ export function PlayersPage() {
         setSelectedPlayer(prev => prev ? { ...prev, status: 'Active' as const, last_game_at: null } : null);
       }
       
+      // Check if a champion still exists after status change
+      const updatedPlayers = players.map(player => 
+        player.id === playerId 
+          ? { ...player, status: 'Active' as const, last_game_at: null }
+          : player
+      );
+      const hasChampion = updatedPlayers.some(player => player.status === 'Champion');
+      setChampionExists(hasChampion);
+      
+      toast.success('Player reinstated successfully');
+      
     } catch (err: any) {
       console.error('Error reinstating player:', err);
       const errorMessage = err?.message || 'Failed to reinstate player. Please try again.';
       setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setReinstating(false);
+    }
+  };
+
+  // Handle marking player as Champion
+  const handleMarkAsChampion = async (playerId: number) => {
+    try {
+      setMarkingChampion(true);
+      setError(null);
+      
+      console.log('Marking player as Champion:', playerId);
+      const updatedPlayer = await PlayersService.updateStatus(playerId, 'Champion');
+      console.log('Player marked as Champion successfully:', updatedPlayer);
+      
+      // Update the local state
+      setPlayers(prevPlayers => 
+        prevPlayers.map(player => 
+          player.id === playerId 
+            ? { ...player, status: 'Champion' as const }
+            : player
+        )
+      );
+      
+      // Update the selected player if it's the one being marked
+      if (selectedPlayer && selectedPlayer.id === playerId) {
+        setSelectedPlayer(prev => prev ? { ...prev, status: 'Champion' as const } : null);
+      }
+      
+      // Mark that a champion now exists
+      setChampionExists(true);
+      
+      toast.success('Player marked as Champion! 🏆');
+      
+    } catch (err: any) {
+      console.error('Error marking player as Champion:', err);
+      const errorMessage = err?.message || 'Failed to mark player as Champion. Please try again.';
+      setError(errorMessage);
+      toast.error(errorMessage);
+    } finally {
+      setMarkingChampion(false);
     }
   };
 
@@ -608,9 +665,17 @@ export function PlayersPage() {
                               ? 'bg-green-500/20 text-green-400 border-green-500/50'
                               : player.status === 'Eliminated'
                               ? 'bg-red-500/20 text-red-400 border-red-500/50'
-                              : 'bg-orange-500/20 text-orange-400 border-orange-500/50'
+                              : player.status === 'Forfeit'
+                              ? 'bg-orange-500/20 text-orange-400 border-orange-500/50'
+                              : 'bg-yellow-500/30 text-yellow-300 border-yellow-400/60 font-semibold'
                           }
+                          style={player.status === 'Champion' ? {
+                            backgroundColor: 'rgba(234, 179, 8, 0.3)',
+                            color: '#fde047',
+                            borderColor: 'rgba(234, 179, 8, 0.6)'
+                          } : {}}
                         >
+                          {player.status === 'Champion' && <Crown className="h-3 w-3 mr-1 text-yellow-300 fill-yellow-300" />}
                           {player.status}
                         </Badge>
                       </TableCell>
@@ -693,9 +758,17 @@ export function PlayersPage() {
                           ? 'bg-green-500/20 text-green-400 border-green-500/50'
                           : selectedPlayer.status === 'Eliminated'
                           ? 'bg-red-500/20 text-red-400 border-red-500/50'
-                          : 'bg-orange-500/20 text-orange-400 border-orange-500/50'
+                          : selectedPlayer.status === 'Forfeit'
+                          ? 'bg-orange-500/20 text-orange-400 border-orange-500/50'
+                          : 'bg-yellow-500/30 text-yellow-300 border-yellow-400/60 font-semibold'
                       }
+                      style={selectedPlayer.status === 'Champion' ? {
+                        backgroundColor: 'rgba(234, 179, 8, 0.3)',
+                        color: '#fde047',
+                        borderColor: 'rgba(234, 179, 8, 0.6)'
+                      } : {}}
                     >
+                      {selectedPlayer.status === 'Champion' && <Crown className="h-3 w-3 mr-1 text-yellow-300 fill-yellow-300" />}
                       {selectedPlayer.status}
                     </Badge>
                   </div>
@@ -861,10 +934,37 @@ export function PlayersPage() {
                 </div>
 
                 {/* Actions */}
-                {(selectedPlayer.status === 'Eliminated' || selectedPlayer.status === 'Forfeit') && (
-                  <>
-                    <Separator className="bg-gray-800" />
-                    {isAuthenticated && (
+                <Separator className="bg-gray-800" />
+                {isAuthenticated && (
+                  <div className="space-y-3">
+                    {/* Mark as Champion - Available for all players except already Champions, and only if no champion exists */}
+                    {selectedPlayer.status !== 'Champion' && !championExists && (
+                      <Button 
+                        className="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-bold shadow-lg shadow-yellow-500/50 border-2 border-yellow-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                        onClick={() => handleMarkAsChampion(selectedPlayer.id)}
+                        disabled={markingChampion}
+                        style={{
+                          backgroundColor: '#eab308',
+                          color: '#000000',
+                          fontWeight: '700'
+                        }}
+                      >
+                        {markingChampion ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin text-black" />
+                            <span className="text-black">Marking as Champion...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Crown className="h-4 w-4 mr-2 text-black fill-black" />
+                            <span className="text-black">Mark as Champion</span>
+                          </>
+                        )}
+                      </Button>
+                    )}
+                    
+                    {/* Reinstate Player - Only for Eliminated or Forfeit players */}
+                    {(selectedPlayer.status === 'Eliminated' || selectedPlayer.status === 'Forfeit') && (
                       <Button 
                         className="w-full bg-[#00d9ff] hover:bg-[#00d9ff]/90 text-black disabled:opacity-50"
                         onClick={() => handleReinstatePlayer(selectedPlayer.id)}
@@ -883,7 +983,7 @@ export function PlayersPage() {
                         )}
                       </Button>
                     )}
-                  </>
+                  </div>
                 )}
               </div>
             </>

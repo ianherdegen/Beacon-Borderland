@@ -177,7 +177,7 @@ export class PlayersService {
   }
 
   // Update player status
-  static async updateStatus(id: number, status: 'Active' | 'Eliminated' | 'Forfeit'): Promise<Player> {
+  static async updateStatus(id: number, status: 'Active' | 'Eliminated' | 'Forfeit' | 'Champion'): Promise<Player> {
     // If reinstating a player (setting to Active), clear their last_game_at
     const updateData: any = { status };
     if (status === 'Active') {

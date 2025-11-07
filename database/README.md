@@ -26,6 +26,7 @@ This folder contains SQL scripts and configuration files for setting up and main
 - **`auto-forfeit-function.sql`** - Implements automatic forfeit detection (3-day rule)
 - **`remove-favor-earned.sql`** - Removes favor/earned system from database
 - **`rename-beacon-to-arena.sql`** - Renames beacon references to arena throughout the system
+- **`add-champion-status.sql`** - Adds 'Champion' status to players table for tournament winners
 
 ## 🚀 Usage Instructions
 
