@@ -220,3 +220,5 @@ The application is configured for Vercel deployment:
 
 3. **Database Setup**
    Ensure Supabase project is properly configured with RLS policies
+
+_Note: Some of the .MD files in this repository were automatically generated and may not be accurate._
